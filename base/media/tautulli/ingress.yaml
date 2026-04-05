@@ -24,4 +24,4 @@ spec:
   tls:
     - hosts:
         - tautulli.sunnyside.home
-      secretName: -tls
+      secretName: tautulli-tls

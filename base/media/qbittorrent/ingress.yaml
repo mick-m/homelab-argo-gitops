@@ -24,4 +24,4 @@ spec:
   tls:
     - hosts:
         - qbit.sunnyside.home
-      secretName: -tls
+      secretName: qbittorrent-tls

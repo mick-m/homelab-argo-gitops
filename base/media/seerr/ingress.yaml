@@ -24,4 +24,4 @@ spec:
   tls:
     - hosts:
         - seerr.sunnyside.home
-      secretName: -tls
+      secretName: seerr-tls

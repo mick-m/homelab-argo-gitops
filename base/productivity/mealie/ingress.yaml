@@ -24,4 +24,4 @@ spec:
   tls:
     - hosts:
         - mealie.sunnyside.home
-      secretName: -tls
+      secretName: mealie-tls

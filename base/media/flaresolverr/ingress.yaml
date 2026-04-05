@@ -24,4 +24,4 @@ spec:
   tls:
     - hosts:
         - flaresolverr.sunnyside.home
-      secretName: -tls
+      secretName: flaresolverr-tls

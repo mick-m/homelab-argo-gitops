@@ -26,7 +26,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://github.com/YOUR_USERNAME/homelab-argo-gitops.git
+        repoURL: https://github.com/mick-m/homelab-argo-gitops.git
         targetRevision: main
         path: "{{path}}"
       destination:
@@ -66,11 +66,11 @@ spec:
         valueFiles:
           - $values/base/monitoring/values.yaml
     # Values from the GitOps repo
-    - repoURL: https://github.com/YOUR_USERNAME/homelab-argo-gitops.git
+    - repoURL: https://github.com/mick-m/homelab-argo-gitops.git
       targetRevision: main
       ref: values
     # Grafana ingress (Kustomize)
-    - repoURL: https://github.com/YOUR_USERNAME/homelab-argo-gitops.git
+    - repoURL: https://github.com/mick-m/homelab-argo-gitops.git
       targetRevision: main
       path: base/monitoring
   destination:
