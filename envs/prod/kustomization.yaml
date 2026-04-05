@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Prod references the base manifests directly.
+# Base already uses the current production images.
+# Add patches here to pin specific image versions or override settings.
+
+resources:
+  - ../../base/utilities
+  - ../../base/media
+  - ../../base/productivity
+  - ../../base/infra
+  - ../../base/monitoring
+
+# Example: pin an image version for prod
+# patches:
+#   - path: patches/sonarr-image.yaml

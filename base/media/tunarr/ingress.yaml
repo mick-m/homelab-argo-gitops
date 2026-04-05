@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tunarr
+  namespace: media
+  labels:
+    app.kubernetes.io/name: tunarr
+    app.kubernetes.io/part-of: homelab
+  annotations:
+    cert-manager.io/cluster-issuer: stepca-acme
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: tunarr.sunnyside.home
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tunarr
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - tunarr.sunnyside.home
+      secretName: -tls

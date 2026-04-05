@@ -1,0 +1,146 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+  namespace: utilities
+data:
+  services.yaml: |
+    ---
+    - Infrastructure:
+        - NAS:
+            href: https://nas.sunnyside.home
+            icon: truenas.png
+            description: TrueNAS storage server
+        - GitLab:
+            href: https://gitlab.sunnyside.home
+            icon: gitlab.png
+            description: Source control & CI/CD
+        - Proxmox (pve):
+            href: https://pve.sunnyside.home:8006
+            icon: proxmox.png
+            description: Proxmox node 1
+        - Proxmox (pve2):
+            href: https://pve2.sunnyside.home:8006
+            icon: proxmox.png
+            description: Proxmox node 2
+        - Proxmox (pve3):
+            href: https://pve3.sunnyside.home:8006
+            icon: proxmox.png
+            description: Proxmox node 3
+        - ArgoCD:
+            href: https://argocd.sunnyside.home
+            icon: argocd.png
+            description: GitOps continuous delivery
+        - Apache Guacamole:
+            href: https://guac.sunnyside.home/guacamole/
+            icon: guacamole.png
+            description: Remote desktop gateway
+        - Grafana:
+            href: https://grafana.sunnyside.home
+            icon: grafana.png
+            description: Metrics & dashboards
+        - Uptime Kuma:
+            href: https://uptime.sunnyside.home
+            icon: uptime-kuma.png
+            description: Service uptime monitoring
+        - NetAlertX:
+            href: https://netalertx.sunnyside.home
+            icon: mdi-lan
+            description: Network device monitoring
+
+    - Productivity:
+        - Nextcloud:
+            href: https://cloud.sunnyside.home
+            icon: nextcloud.png
+            description: File sync & collaboration
+        - Paperless-NGX:
+            href: https://paperless.sunnyside.home
+            icon: paperless-ngx.png
+            description: Document management
+        - FreshRSS:
+            href: https://rss.sunnyside.home
+            icon: freshrss.png
+            description: RSS feed reader
+        - Mealie:
+            href: https://mealie.sunnyside.home
+            icon: mealie.png
+            description: Recipe manager
+        - SearXNG:
+            href: https://search.sunnyside.home
+            icon: searxng.png
+            description: Privacy search engine
+        - Open WebUI:
+            href: https://webui.sunnyside.home
+            icon: open-webui.png
+            description: AI chat interface (Ollama)
+
+    - Tools:
+        - IT Tools:
+            href: https://tools.sunnyside.home
+            icon: it-tools.png
+            description: Developer utilities
+        - Stirling PDF:
+            href: https://pdf.sunnyside.home
+            icon: stirling-pdf.png
+            description: PDF toolkit
+        - 13ft Ladder:
+            href: https://13ft.sunnyside.home
+            icon: mdi-ladder
+            description: Paywall bypass proxy
+        - OpenSpeedTest:
+            href: https://speedtest.sunnyside.home
+            icon: openspeedtest.png
+            description: Network speed test
+        - qBittorrent:
+            href: https://qbit.sunnyside.home
+            icon: qbittorrent.png
+            description: Torrent client
+
+    - Media:
+        - Plex:
+            href: https://plex.sunnyside.home
+            icon: plex.png
+            description: Media server
+        - Tautulli:
+            href: https://tautulli.sunnyside.home
+            icon: tautulli.png
+            description: Plex monitoring
+        - Seerr:
+            href: https://seerr.sunnyside.home
+            icon: seerr.png
+            description: Media request manager
+        - Tunarr:
+            href: https://tunarr.sunnyside.home
+            icon: mdi-television-classic
+            description: Custom TV channels
+        - Sonarr:
+            href: https://sonarr.sunnyside.home
+            icon: sonarr.png
+            description: TV show collection manager
+        - Radarr:
+            href: https://radarr.sunnyside.home
+            icon: radarr.png
+            description: Movie collection manager
+        - Bazarr:
+            href: https://bazarr.sunnyside.home
+            icon: bazarr.png
+            description: Subtitle manager
+        - Prowlarr:
+            href: https://prowlarr.sunnyside.home
+            icon: prowlarr.png
+            description: Indexer manager
+        - MeTube:
+            href: https://metube.sunnyside.home
+            icon: metube.png
+            description: YouTube downloader
+  settings.yaml: |
+    ---
+    title: Sunnyside Homelab
+    theme: dark
+    color: slate
+    background:
+      image: https://images.unsplash.com/photo-1502790671504-542ad42d5189?auto=format&fit=crop&w=2560&q=80
+      blur: sm
+      saturate: 50
+      brightness: 50
+      opacity: 50

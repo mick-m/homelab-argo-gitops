@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: freshrss
+  namespace: productivity
+  labels:
+    app.kubernetes.io/name: freshrss
+    app.kubernetes.io/part-of: homelab
+  annotations:
+    cert-manager.io/cluster-issuer: stepca-acme
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: rss.sunnyside.home
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: freshrss
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - rss.sunnyside.home
+      secretName: -tls

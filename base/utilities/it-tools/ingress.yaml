@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: it-tools
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: it-tools
+    app.kubernetes.io/part-of: homelab
+  annotations:
+    cert-manager.io/cluster-issuer: stepca-acme
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: tools.sunnyside.home
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: it-tools
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - tools.sunnyside.home
+      secretName: it-tools-tls

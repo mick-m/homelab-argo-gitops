@@ -1,0 +1,80 @@
+# ArgoCD ApplicationSet for prod environment
+# Generates one Application per namespace
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: prod-apps
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - namespace: utilities
+            path: base/utilities
+          - namespace: media
+            path: base/media
+          - namespace: productivity
+            path: base/productivity
+          - namespace: infra
+            path: base/infra
+  template:
+    metadata:
+      name: "prod-{{namespace}}"
+      namespace: argocd
+      labels:
+        env: prod
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/YOUR_USERNAME/homelab-argo-gitops.git
+        targetRevision: main
+        path: "{{path}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{namespace}}"
+      syncPolicy:
+        # Prod: MANUAL sync — Mick promotes deliberately
+        syncOptions:
+          - CreateNamespace=true
+          - PruneLast=true
+        retry:
+          limit: 3
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+---
+# Monitoring is a Helm-based Application (separate from the Kustomize apps)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prod-monitoring
+  namespace: argocd
+  labels:
+    env: prod
+spec:
+  project: default
+  sources:
+    # Helm chart for kube-prometheus-stack
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: kube-prometheus-stack
+      targetRevision: "*"
+      helm:
+        valueFiles:
+          - $values/base/monitoring/values.yaml
+    # Values from the GitOps repo
+    - repoURL: https://github.com/YOUR_USERNAME/homelab-argo-gitops.git
+      targetRevision: main
+      ref: values
+    # Grafana ingress (Kustomize)
+    - repoURL: https://github.com/YOUR_USERNAME/homelab-argo-gitops.git
+      targetRevision: main
+      path: base/monitoring
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    # Prod: MANUAL sync
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

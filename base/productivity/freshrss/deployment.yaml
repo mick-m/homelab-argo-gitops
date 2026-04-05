@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: freshrss
+  namespace: productivity
+  labels:
+    app.kubernetes.io/name: freshrss
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: freshrss
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: freshrss
+        app.kubernetes.io/part-of: homelab
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+        - name: freshrss
+          image: freshrss/freshrss:latest
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          env:
+            - name: TZ
+              value: Europe/Dublin
+            - name: CRON_MIN
+              value: "*/30"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+          volumeMounts:
+            - name: data
+              mountPath: /var/www/FreshRSS/data
+            - name: extensions
+              mountPath: /var/www/FreshRSS/extensions
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: freshrss-data
+        - name: extensions
+          persistentVolumeClaim:
+            claimName: freshrss-extensions

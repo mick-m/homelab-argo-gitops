@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: searxng
+  namespace: productivity
+  labels:
+    app.kubernetes.io/name: searxng
+    app.kubernetes.io/part-of: homelab
+  annotations:
+    cert-manager.io/cluster-issuer: stepca-acme
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: search.sunnyside.home
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: searxng
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - search.sunnyside.home
+      secretName: -tls

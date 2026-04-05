@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netalertx
+  namespace: infra
+  labels:
+    app.kubernetes.io/name: netalertx
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: netalertx
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: netalertx
+        app.kubernetes.io/part-of: homelab
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      enableServiceLinks: false
+      containers:
+        - name: netalertx
+          image: jokobsk/netalertx:latest
+          ports:
+            - containerPort: 20211
+              protocol: TCP
+          env:
+            - name: TZ
+              value: Europe/Dublin
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          livenessProbe:
+            tcpSocket:
+              port: 20211
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: 20211
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 3
+          volumeMounts:
+            - name: data
+              mountPath: /app/config
+              subPath: config
+            - name: data
+              mountPath: /app/db
+              subPath: db
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: netalertx-config

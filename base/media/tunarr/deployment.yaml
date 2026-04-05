@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tunarr
+  namespace: media
+  labels:
+    app.kubernetes.io/name: tunarr
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tunarr
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tunarr
+        app.kubernetes.io/part-of: homelab
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: tunarr
+          image: chrisbenincasa/tunarr:latest
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          env:
+            - name: TZ
+              value: Europe/Dublin
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: tunarr-config

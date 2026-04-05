@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: guacamole
+  namespace: infra
+  labels:
+    app.kubernetes.io/name: guacamole
+    app.kubernetes.io/part-of: homelab
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: guacamole
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: guacamole-db
+  namespace: infra
+  labels:
+    app.kubernetes.io/name: guacamole-db
+    app.kubernetes.io/part-of: homelab
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: guacamole-db
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432

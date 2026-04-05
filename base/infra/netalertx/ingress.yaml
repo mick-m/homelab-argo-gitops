@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: netalertx
+  namespace: infra
+  labels:
+    app.kubernetes.io/name: netalertx
+    app.kubernetes.io/part-of: homelab
+  annotations:
+    cert-manager.io/cluster-issuer: stepca-acme
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: netalertx.sunnyside.home
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: netalertx
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - netalertx.sunnyside.home
+      secretName: netalertx-tls

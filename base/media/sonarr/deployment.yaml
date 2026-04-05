@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarr
+  namespace: media
+  labels:
+    app.kubernetes.io/name: sonarr
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sonarr
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sonarr
+        app.kubernetes.io/part-of: homelab
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: sonarr
+          image: linuxserver/sonarr:latest
+          ports:
+            - containerPort: 8989
+              protocol: TCP
+          env:
+            - name: TZ
+              value: Europe/Dublin
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            tcpSocket:
+              port: 8989
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: 8989
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: tvshows
+              mountPath: /tvshows
+            - name: tvshows-br
+              mountPath: /tvshows_br
+            - name: downloads
+              mountPath: /downloads
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: sonarr-config
+        - name: tvshows
+          nfs:
+            server: 192.168.1.202
+            path: /mnt/volume1/plex/tvshows
+        - name: tvshows-br
+          nfs:
+            server: 192.168.1.202
+            path: /mnt/volume1/plex/tvshows_br
+        - name: downloads
+          nfs:
+            server: 192.168.1.202
+            path: /mnt/volume1/downloads

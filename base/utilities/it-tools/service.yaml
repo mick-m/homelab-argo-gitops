@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: it-tools
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: it-tools
+    app.kubernetes.io/part-of: homelab
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: it-tools
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 80

@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openspeedtest
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: openspeedtest
+    app.kubernetes.io/part-of: homelab
+  annotations:
+    cert-manager.io/cluster-issuer: stepca-acme
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: speedtest.sunnyside.home
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: openspeedtest
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - speedtest.sunnyside.home
+      secretName: openspeedtest-tls

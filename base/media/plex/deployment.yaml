@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plex
+  namespace: media
+  labels:
+    app.kubernetes.io/name: plex
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: plex
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: plex
+        app.kubernetes.io/part-of: homelab
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      enableServiceLinks: false
+      containers:
+        - name: plex
+          image: linuxserver/plex:latest
+          ports:
+            - containerPort: 32400
+              protocol: TCP
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: Europe/Dublin
+            - name: VERSION
+              value: docker
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: void
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "4"
+              memory: 4Gi
+          livenessProbe:
+            tcpSocket:
+              port: 32400
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: 32400
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 3
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: transcode
+              mountPath: /transcode
+            - name: movies
+              mountPath: /movies
+            - name: 4kmovies
+              mountPath: /4kmovies
+            - name: tvshows
+              mountPath: /tv
+            - name: tvshows-br
+              mountPath: /tv_br
+            - name: music
+              mountPath: /music
+            - name: dri
+              mountPath: /dev/dri
+      volumes:
+        - name: dri
+          hostPath:
+            path: /dev/dri
+        - name: config
+          persistentVolumeClaim:
+            claimName: plex-config
+        - name: transcode
+          emptyDir: {}
+        - name: movies
+          nfs:
+            server: 192.168.1.202
+            path: /mnt/volume1/plex/movies
+        - name: 4kmovies
+          nfs:
+            server: 192.168.1.202
+            path: /mnt/volume1/plex/4kmovies
+        - name: tvshows
+          nfs:
+            server: 192.168.1.202
+            path: /mnt/volume1/plex/tvshows
+        - name: tvshows-br
+          nfs:
+            server: 192.168.1.202
+            path: /mnt/volume1/plex/tvshows_br
+        - name: music
+          nfs:
+            server: 192.168.1.202
+            path: /mnt/volume1/music

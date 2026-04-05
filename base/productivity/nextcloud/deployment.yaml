@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud
+  namespace: productivity
+  labels:
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nextcloud
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nextcloud
+        app.kubernetes.io/part-of: homelab
+    spec:
+      enableServiceLinks: false
+      initContainers:
+        - name: wait-for-db
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for PostgreSQL..."
+              until nc -z nextcloud-db 5432; do sleep 2; done
+              echo "PostgreSQL is ready"
+        - name: nfs-config
+          image: busybox:latest
+          securityContext:
+            runAsUser: 33
+            runAsGroup: 0
+          command:
+            - sh
+            - -c
+            - |
+              mkdir -p /html/config
+              cat > /html/config/nfs.config.php << 'INNEREOF'
+              <?php
+              $CONFIG = array(
+                'check_data_directory_permissions' => false,
+              );
+              INNEREOF
+          volumeMounts:
+            - name: data
+              mountPath: /html
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+        - name: nextcloud
+          image: nextcloud:latest
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          env:
+            - name: TZ
+              value: Europe/Dublin
+            - name: NEXTCLOUD_DATA_DIR
+              value: /mnt/nextcloud-data
+            - name: POSTGRES_HOST
+              value: nextcloud-db
+            - name: POSTGRES_DB
+              value: nextcloud
+            - name: POSTGRES_USER
+              value: nextcloud
+            - name: POSTGRES_PASSWORD
+              value: nextcloud-k3s-2026
+            - name: REDIS_HOST
+              value: localhost
+            - name: NEXTCLOUD_ADMIN_USER
+              value: admin
+            - name: NEXTCLOUD_ADMIN_PASSWORD
+              value: admin-k3s-2026
+            - name: NEXTCLOUD_TRUSTED_DOMAINS
+              value: cloud.sunnyside.home
+            - name: OVERWRITEPROTOCOL
+              value: https
+            - name: OVERWRITECLIURL
+              value: https://cloud.sunnyside.home
+            - name: APACHE_DISABLE_REWRITE_IP
+              value: "1"
+            - name: TRUSTED_PROXIES
+              value: 10.42.0.0/16
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+          volumeMounts:
+            - name: data
+              mountPath: /var/www/html
+            - name: userfiles
+              mountPath: /mnt/nextcloud-data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: nextcloud-data
+        - name: userfiles
+          persistentVolumeClaim:
+            claimName: nextcloud-userfiles

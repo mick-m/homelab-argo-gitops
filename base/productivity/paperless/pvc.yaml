@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-data
+  namespace: productivity
+  labels:
+    app.kubernetes.io/name: paperless
+    app.kubernetes.io/part-of: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-db-data
+  namespace: productivity
+  labels:
+    app.kubernetes.io/name: paperless-db
+    app.kubernetes.io/part-of: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-media
+  namespace: productivity
+  labels:
+    app.kubernetes.io/name: paperless
+    app.kubernetes.io/part-of: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-client
+  resources:
+    requests:
+      storage: 20Gi

@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bazarr
+  namespace: media
+  labels:
+    app.kubernetes.io/name: bazarr
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bazarr
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: bazarr
+        app.kubernetes.io/part-of: homelab
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: bazarr
+          image: linuxserver/bazarr:latest
+          ports:
+            - containerPort: 6767
+              protocol: TCP
+          env:
+            - name: TZ
+              value: Europe/Dublin
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            tcpSocket:
+              port: 6767
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: 6767
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: movies
+              mountPath: /movies
+            - name: 4kmovies
+              mountPath: /4kmovies
+            - name: tvshows
+              mountPath: /tvshows
+            - name: tvshows-br
+              mountPath: /tvshows_br
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: bazarr-config
+        - name: movies
+          nfs:
+            server: 192.168.1.202
+            path: /mnt/volume1/plex/movies
+        - name: 4kmovies
+          nfs:
+            server: 192.168.1.202
+            path: /mnt/volume1/plex/4kmovies
+        - name: tvshows
+          nfs:
+            server: 192.168.1.202
+            path: /mnt/volume1/plex/tvshows
+        - name: tvshows-br
+          nfs:
+            server: 192.168.1.202
+            path: /mnt/volume1/plex/tvshows_br

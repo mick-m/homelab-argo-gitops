@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: it-tools
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: it-tools
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: it-tools
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: it-tools
+        app.kubernetes.io/part-of: homelab
+    spec:
+      containers:
+        - name: it-tools
+          image: corentinth/it-tools:latest
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          env:
+            - name: TZ
+              value: Europe/Dublin
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3

@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: stirling-pdf
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: stirling-pdf
+    app.kubernetes.io/part-of: homelab
+  annotations:
+    cert-manager.io/cluster-issuer: stepca-acme
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: pdf.sunnyside.home
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: stirling-pdf
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - pdf.sunnyside.home
+      secretName: stirling-pdf-tls

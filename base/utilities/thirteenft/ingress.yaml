@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: thirteenft
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: thirteenft
+    app.kubernetes.io/part-of: homelab
+  annotations:
+    cert-manager.io/cluster-issuer: stepca-acme
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: 13ft.sunnyside.home
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: thirteenft
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - 13ft.sunnyside.home
+      secretName: thirteenft-tls

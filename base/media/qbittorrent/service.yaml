@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: qbittorrent
+  namespace: media
+  labels:
+    app.kubernetes.io/name: qbittorrent
+    app.kubernetes.io/part-of: homelab
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: qbittorrent
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8080

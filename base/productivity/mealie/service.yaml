@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mealie
+  namespace: productivity
+  labels:
+    app.kubernetes.io/name: mealie
+    app.kubernetes.io/part-of: homelab
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: mealie
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 9000
