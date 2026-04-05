@@ -61,7 +61,7 @@ spec:
     # Helm chart for kube-prometheus-stack
     - repoURL: https://prometheus-community.github.io/helm-charts
       chart: kube-prometheus-stack
-      targetRevision: "*"
+      targetRevision: "82.17.1"
       helm:
         valueFiles:
           - $values/base/monitoring/values.yaml
