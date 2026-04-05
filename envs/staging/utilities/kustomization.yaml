@@ -1,0 +1,89 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../base/utilities
+
+patches:
+  - target:
+      kind: Ingress
+      name: homepage
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-home.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-home.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-homepage-tls
+
+  - target:
+      kind: Ingress
+      name: it-tools
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-tools.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-tools.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-it-tools-tls
+
+  - target:
+      kind: Ingress
+      name: open-webui
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-webui.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-webui.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-open-webui-tls
+
+  - target:
+      kind: Ingress
+      name: openspeedtest
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-speedtest.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-speedtest.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-openspeedtest-tls
+
+  - target:
+      kind: Ingress
+      name: stirling-pdf
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-pdf.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-pdf.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-stirling-pdf-tls
+
+  - target:
+      kind: Ingress
+      name: thirteenft
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-13ft.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-13ft.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-thirteenft-tls

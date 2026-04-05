@@ -10,13 +10,13 @@ spec:
     - list:
         elements:
           - namespace: utilities
-            path: base/utilities
+            path: envs/staging/utilities
           - namespace: media
-            path: base/media
+            path: envs/staging/media
           - namespace: productivity
-            path: base/productivity
+            path: envs/staging/productivity
           - namespace: infra
-            path: base/infra
+            path: envs/staging/infra
   template:
     metadata:
       name: "staging-{{namespace}}"

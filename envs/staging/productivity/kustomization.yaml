@@ -1,0 +1,75 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../base/productivity
+
+patches:
+  - target:
+      kind: Ingress
+      name: freshrss
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-rss.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-rss.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-freshrss-tls
+
+  - target:
+      kind: Ingress
+      name: mealie
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-mealie.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-mealie.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-mealie-tls
+
+  - target:
+      kind: Ingress
+      name: searxng
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-search.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-search.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-searxng-tls
+
+  - target:
+      kind: Ingress
+      name: nextcloud
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-cloud.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-cloud.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-nextcloud-tls
+
+  - target:
+      kind: Ingress
+      name: paperless
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-paperless.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-paperless.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-paperless-tls

@@ -1,0 +1,159 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../base/media
+
+patches:
+  - target:
+      kind: Ingress
+      name: plex
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-plex.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-plex.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-plex-tls
+
+  - target:
+      kind: Ingress
+      name: sonarr
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-sonarr.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-sonarr.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-sonarr-tls
+
+  - target:
+      kind: Ingress
+      name: radarr
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-radarr.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-radarr.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-radarr-tls
+
+  - target:
+      kind: Ingress
+      name: bazarr
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-bazarr.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-bazarr.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-bazarr-tls
+
+  - target:
+      kind: Ingress
+      name: prowlarr
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-prowlarr.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-prowlarr.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-prowlarr-tls
+
+  - target:
+      kind: Ingress
+      name: qbittorrent
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-qbit.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-qbit.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-qbittorrent-tls
+
+  - target:
+      kind: Ingress
+      name: seerr
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-seerr.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-seerr.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-seerr-tls
+
+  - target:
+      kind: Ingress
+      name: tautulli
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-tautulli.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-tautulli.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-tautulli-tls
+
+  - target:
+      kind: Ingress
+      name: tunarr
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-tunarr.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-tunarr.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-tunarr-tls
+
+  - target:
+      kind: Ingress
+      name: metube
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-metube.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-metube.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-metube-tls
+
+  - target:
+      kind: Ingress
+      name: flaresolverr
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-flaresolverr.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-flaresolverr.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-flaresolverr-tls
