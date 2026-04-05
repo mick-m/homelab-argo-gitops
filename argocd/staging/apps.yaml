@@ -46,3 +46,47 @@ spec:
             duration: 5s
             factor: 2
             maxDuration: 3m
+---
+# Monitoring is a Helm-based Application (separate from the Kustomize apps)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: staging-monitoring
+  namespace: argocd
+  labels:
+    env: staging
+spec:
+  project: default
+  sources:
+    # Helm chart for kube-prometheus-stack
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: kube-prometheus-stack
+      targetRevision: "82.17.1"
+      helm:
+        valueFiles:
+          - $values/envs/staging/monitoring/values.yaml
+    # Values from the GitOps repo
+    - repoURL: https://github.com/mick-m/homelab-argo-gitops.git
+      targetRevision: main
+      ref: values
+    # Grafana ingress (Kustomize) — staging overlay
+    - repoURL: https://github.com/mick-m/homelab-argo-gitops.git
+      targetRevision: main
+      path: envs/staging/monitoring
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    # Staging: AUTO-SYNC enabled
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

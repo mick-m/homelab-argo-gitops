@@ -87,3 +87,13 @@ patches:
       - op: replace
         path: /spec/tls/0/secretName
         value: staging-thirteenft-tls
+
+  - path: homepage-config-patch.yaml
+
+  - target:
+      kind: Deployment
+      name: homepage
+    patch: |
+      - op: replace
+        path: /spec/template/spec/containers/0/env/1/value
+        value: staging-home.sunnyside.home

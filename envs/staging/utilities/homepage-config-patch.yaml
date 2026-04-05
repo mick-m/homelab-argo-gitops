@@ -1,0 +1,132 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+  namespace: utilities
+data:
+  settings.yaml: |
+    ---
+    title: Sunnyside Homelab (Staging)
+    theme: dark
+    color: amber
+    background:
+      image: https://images.unsplash.com/photo-1502790671504-542ad42d5189?auto=format&fit=crop&w=2560&q=80
+      blur: sm
+      saturate: 50
+      brightness: 50
+      opacity: 50
+  services.yaml: |
+    ---
+    - Management:
+        - ArgoCD:
+            href: https://staging-argocd.sunnyside.home
+            icon: argocd.png
+            description: GitOps continuous delivery (staging)
+
+    - Infra:
+        - Apache Guacamole:
+            href: https://staging-guac.sunnyside.home/guacamole/
+            icon: guacamole.png
+            description: Remote desktop gateway
+        - Uptime Kuma:
+            href: https://staging-uptime.sunnyside.home
+            icon: uptime-kuma.png
+            description: Service uptime monitoring
+        - NetAlertX:
+            href: https://staging-netalertx.sunnyside.home
+            icon: mdi-lan
+            description: Network device monitoring
+
+    - Productivity:
+        - Nextcloud:
+            href: https://staging-cloud.sunnyside.home
+            icon: nextcloud.png
+            description: File sync & collaboration
+        - Paperless-NGX:
+            href: https://staging-paperless.sunnyside.home
+            icon: paperless-ngx.png
+            description: Document management
+        - FreshRSS:
+            href: https://staging-rss.sunnyside.home
+            icon: freshrss.png
+            description: RSS feed reader
+        - Mealie:
+            href: https://staging-mealie.sunnyside.home
+            icon: mealie.png
+            description: Recipe manager
+        - SearXNG:
+            href: https://staging-search.sunnyside.home
+            icon: searxng.png
+            description: Privacy search engine
+
+    - Utilities:
+        - Homepage:
+            href: https://staging-home.sunnyside.home
+            icon: homepage.png
+            description: Dashboard
+        - Open WebUI:
+            href: https://staging-webui.sunnyside.home
+            icon: open-webui.png
+            description: AI chat interface (Ollama)
+        - IT Tools:
+            href: https://staging-tools.sunnyside.home
+            icon: it-tools.png
+            description: Developer utilities
+        - Stirling PDF:
+            href: https://staging-pdf.sunnyside.home
+            icon: stirling-pdf.png
+            description: PDF toolkit
+        - 13ft Ladder:
+            href: https://staging-13ft.sunnyside.home
+            icon: mdi-ladder
+            description: Paywall bypass proxy
+        - OpenSpeedTest:
+            href: https://staging-speedtest.sunnyside.home
+            icon: openspeedtest.png
+            description: Network speed test
+
+    - Media:
+        - Plex:
+            href: https://staging-plex.sunnyside.home
+            icon: plex.png
+            description: Media server
+        - Tautulli:
+            href: https://staging-tautulli.sunnyside.home
+            icon: tautulli.png
+            description: Plex monitoring
+        - Seerr:
+            href: https://staging-seerr.sunnyside.home
+            icon: seerr.png
+            description: Media request manager
+        - Tunarr:
+            href: https://staging-tunarr.sunnyside.home
+            icon: mdi-television-classic
+            description: Custom TV channels
+        - Sonarr:
+            href: https://staging-sonarr.sunnyside.home
+            icon: sonarr.png
+            description: TV show collection manager
+        - Radarr:
+            href: https://staging-radarr.sunnyside.home
+            icon: radarr.png
+            description: Movie collection manager
+        - Bazarr:
+            href: https://staging-bazarr.sunnyside.home
+            icon: bazarr.png
+            description: Subtitle manager
+        - Prowlarr:
+            href: https://staging-prowlarr.sunnyside.home
+            icon: prowlarr.png
+            description: Indexer manager
+        - qBittorrent:
+            href: https://staging-qbit.sunnyside.home
+            icon: qbittorrent.png
+            description: Torrent client
+        - MeTube:
+            href: https://staging-metube.sunnyside.home
+            icon: metube.png
+            description: YouTube downloader
+        - FlareSolverr:
+            href: https://staging-flaresolverr.sunnyside.home
+            icon: mdi-shield-search
+            description: CAPTCHA solving proxy
