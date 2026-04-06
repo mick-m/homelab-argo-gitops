@@ -71,8 +71,6 @@ spec:
               value: "1000"
             - name: WEBUI_PORT
               value: "8080"
-            - name: QBT_Preferences__WebUI__CSRFProtection
-              value: "false"
           resources:
             requests:
               cpu: 100m
