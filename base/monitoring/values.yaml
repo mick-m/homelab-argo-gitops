@@ -23,6 +23,62 @@ grafana:
     limits:
       cpu: 500m
       memory: 512Mi
+  # Community Grafana dashboards for exporters
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: grafana-dashboards-exporters
+          orgId: 1
+          folder: Exporters
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/exporters
+  dashboards:
+    exporters:
+      # UnPoller / UniFi dashboards
+      unifi-client-insights:
+        gnetId: 11315
+        revision: 9
+        datasource: Prometheus
+      unifi-network-sites:
+        gnetId: 11311
+        revision: 5
+        datasource: Prometheus
+      unifi-usg-insights:
+        gnetId: 11313
+        revision: 9
+        datasource: Prometheus
+      unifi-usw-insights:
+        gnetId: 11312
+        revision: 9
+        datasource: Prometheus
+      unifi-uap-insights:
+        gnetId: 11314
+        revision: 10
+        datasource: Prometheus
+      # Proxmox VE dashboard
+      proxmox-ve:
+        gnetId: 10347
+        revision: 5
+        datasource: Prometheus
+      # Exportarr / arr stack dashboard
+      exportarr:
+        gnetId: 12896
+        revision: 1
+        datasource: Prometheus
+      # qBittorrent dashboard
+      qbittorrent:
+        gnetId: 15116
+        revision: 1
+        datasource: Prometheus
+      # Nextcloud dashboard
+      nextcloud:
+        gnetId: 9632
+        revision: 1
+        datasource: Prometheus
 
 kubeStateMetrics:
   enabled: true
@@ -32,6 +88,9 @@ nodeExporter:
 
 prometheus:
   prometheusSpec:
+    # Allow Prometheus to discover all ServiceMonitors in the cluster,
+    # not just those matching the Helm release label.
+    serviceMonitorSelectorNilUsesHelmValues: false
     retention: 15d
     resources:
       requests:

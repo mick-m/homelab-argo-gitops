@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proxmox-exporter
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: proxmox-exporter
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: proxmox-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: proxmox-exporter
+        app.kubernetes.io/part-of: homelab
+    spec:
+      containers:
+        - name: pve-exporter
+          image: prompve/prometheus-pve-exporter:3.8.2
+          args:
+            - --no-collector.config
+          ports:
+            - name: metrics
+              containerPort: 9221
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /etc/pve.yml
+              subPath: pve.yml
+              readOnly: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: metrics
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: config
+          secret:
+            secretName: proxmox-exporter-config

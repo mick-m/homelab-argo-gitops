@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbittorrent-exporter
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: qbittorrent-exporter
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: qbittorrent-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: qbittorrent-exporter
+        app.kubernetes.io/part-of: homelab
+    spec:
+      containers:
+        - name: qbittorrent-exporter
+          image: ghcr.io/martabal/qbittorrent-exporter:latest
+          env:
+            - name: QBITTORRENT_BASE_URL
+              value: "http://qbittorrent.media.svc:8080"
+            - name: QBITTORRENT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: qbittorrent-exporter-credentials
+                  key: username
+                  optional: true
+            - name: QBITTORRENT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: qbittorrent-exporter-credentials
+                  key: password
+                  optional: true
+            - name: EXPORTER_PORT
+              value: "9561"
+          ports:
+            - name: metrics
+              containerPort: 9561
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 5m
+              memory: 16Mi
+            limits:
+              cpu: 50m
+              memory: 32Mi
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 10

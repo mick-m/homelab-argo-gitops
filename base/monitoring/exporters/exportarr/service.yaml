@@ -1,0 +1,68 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: exportarr-sonarr
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: exportarr-sonarr
+    app.kubernetes.io/part-of: homelab
+spec:
+  selector:
+    app.kubernetes.io/name: exportarr-sonarr
+  ports:
+    - name: metrics
+      port: 9707
+      targetPort: metrics
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: exportarr-radarr
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: exportarr-radarr
+    app.kubernetes.io/part-of: homelab
+spec:
+  selector:
+    app.kubernetes.io/name: exportarr-radarr
+  ports:
+    - name: metrics
+      port: 9708
+      targetPort: metrics
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: exportarr-prowlarr
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: exportarr-prowlarr
+    app.kubernetes.io/part-of: homelab
+spec:
+  selector:
+    app.kubernetes.io/name: exportarr-prowlarr
+  ports:
+    - name: metrics
+      port: 9709
+      targetPort: metrics
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: exportarr-bazarr
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: exportarr-bazarr
+    app.kubernetes.io/part-of: homelab
+spec:
+  selector:
+    app.kubernetes.io/name: exportarr-bazarr
+  ports:
+    - name: metrics
+      port: 9710
+      targetPort: metrics
+      protocol: TCP

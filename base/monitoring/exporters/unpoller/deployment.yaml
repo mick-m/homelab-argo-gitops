@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unpoller
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: unpoller
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: unpoller
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: unpoller
+        app.kubernetes.io/part-of: homelab
+    spec:
+      containers:
+        - name: unpoller
+          image: ghcr.io/unpoller/unpoller:v2.37.0
+          ports:
+            - name: metrics
+              containerPort: 9130
+              protocol: TCP
+          env:
+            - name: UP_PROMETHEUS_DISABLE
+              value: "false"
+            - name: UP_PROMETHEUS_HTTP_LISTEN
+              value: "0.0.0.0:9130"
+            - name: UP_INFLUXDB_DISABLE
+              value: "true"
+            # UniFi controller credentials — sourced from Secret
+            - name: UP_UNIFI_DEFAULT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: unpoller-credentials
+                  key: unifi-url
+            - name: UP_UNIFI_DEFAULT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: unpoller-credentials
+                  key: unifi-user
+            - name: UP_UNIFI_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: unpoller-credentials
+                  key: unifi-pass
+            - name: UP_UNIFI_DEFAULT_VERIFY_SSL
+              value: "false"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 10
+            periodSeconds: 10

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextcloud-exporter
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: nextcloud-exporter
+    app.kubernetes.io/part-of: homelab
+spec:
+  selector:
+    app.kubernetes.io/name: nextcloud-exporter
+  ports:
+    - name: metrics
+      port: 9205
+      targetPort: metrics
+      protocol: TCP

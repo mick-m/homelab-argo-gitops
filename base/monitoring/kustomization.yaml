@@ -2,6 +2,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ingress.yaml
+  - exporters
 # NOTE: kube-prometheus-stack is deployed via Helm by ArgoCD.
 # The values.yaml in this directory is referenced by the ArgoCD Application.
-# The ingress is managed separately via Kustomize.
+# The ingress and exporters are managed separately via Kustomize.
