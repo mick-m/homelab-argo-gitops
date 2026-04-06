@@ -5,7 +5,7 @@ alertmanager:
   enabled: false
 
 grafana:
-  adminPassword: admin
+  adminPassword: elGFw6zVWOmvhoZqSjMOoZBrMxctE9
   persistence:
     enabled: true
     size: 5Gi
