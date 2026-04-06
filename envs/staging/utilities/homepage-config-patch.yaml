@@ -8,7 +8,7 @@ data:
     ---
     title: Sunnyside Homelab (Staging)
     theme: dark
-    color: amber
+    color: slate
     background:
       image: https://images.unsplash.com/photo-1502790671504-542ad42d5189?auto=format&fit=crop&w=2560&q=80
       blur: sm
@@ -17,17 +17,39 @@ data:
       opacity: 50
   services.yaml: |
     ---
-    - Management:
+    - Infrastructure:
+        - NAS:
+            href: https://nas.sunnyside.home
+            icon: truenas.png
+            description: TrueNAS storage server
+        - GitLab:
+            href: https://gitlab.sunnyside.home
+            icon: gitlab.png
+            description: Source control & CI/CD
+        - Proxmox (pve):
+            href: https://pve.sunnyside.home:8006
+            icon: proxmox.png
+            description: Proxmox node 1
+        - Proxmox (pve2):
+            href: https://pve2.sunnyside.home:8006
+            icon: proxmox.png
+            description: Proxmox node 2
+        - Proxmox (pve3):
+            href: https://pve3.sunnyside.home:8006
+            icon: proxmox.png
+            description: Proxmox node 3
         - ArgoCD:
             href: https://staging-argocd.sunnyside.home
             icon: argocd.png
-            description: GitOps continuous delivery (staging)
-
-    - Infra:
+            description: GitOps continuous delivery
         - Apache Guacamole:
             href: https://staging-guac.sunnyside.home/guacamole/
             icon: guacamole.png
             description: Remote desktop gateway
+        - Grafana:
+            href: https://staging-grafana.sunnyside.home
+            icon: grafana.png
+            description: Metrics & dashboards
         - Uptime Kuma:
             href: https://staging-uptime.sunnyside.home
             icon: uptime-kuma.png
@@ -58,16 +80,12 @@ data:
             href: https://staging-search.sunnyside.home
             icon: searxng.png
             description: Privacy search engine
-
-    - Utilities:
-        - Homepage:
-            href: https://staging-home.sunnyside.home
-            icon: homepage.png
-            description: Dashboard
         - Open WebUI:
             href: https://staging-webui.sunnyside.home
             icon: open-webui.png
             description: AI chat interface (Ollama)
+
+    - Tools:
         - IT Tools:
             href: https://staging-tools.sunnyside.home
             icon: it-tools.png
@@ -84,6 +102,10 @@ data:
             href: https://staging-speedtest.sunnyside.home
             icon: openspeedtest.png
             description: Network speed test
+        - qBittorrent:
+            href: https://staging-qbit.sunnyside.home
+            icon: qbittorrent.png
+            description: Torrent client
 
     - Media:
         - Plex:
@@ -118,15 +140,7 @@ data:
             href: https://staging-prowlarr.sunnyside.home
             icon: prowlarr.png
             description: Indexer manager
-        - qBittorrent:
-            href: https://staging-qbit.sunnyside.home
-            icon: qbittorrent.png
-            description: Torrent client
         - MeTube:
             href: https://staging-metube.sunnyside.home
             icon: metube.png
             description: YouTube downloader
-        - FlareSolverr:
-            href: https://staging-flaresolverr.sunnyside.home
-            icon: mdi-shield-search
-            description: CAPTCHA solving proxy
