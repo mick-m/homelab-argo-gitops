@@ -18,6 +18,17 @@ spec:
         app.kubernetes.io/part-of: homelab
     spec:
       enableServiceLinks: false
+      initContainers:
+        - name: disable-ipv6
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              sysctl -w net.ipv6.conf.all.disable_ipv6=1
+              sysctl -w net.ipv6.conf.default.disable_ipv6=1
+          securityContext:
+            privileged: true
       containers:
         # Gluetun VPN sidecar
         - name: gluetun
@@ -30,6 +41,8 @@ spec:
               value: "8080"
             - name: FIREWALL_OUTBOUND_SUBNETS
               value: 10.42.0.0/16,10.43.0.0/16
+            - name: DOT_IPV6
+              value: "off"
           securityContext:
             capabilities:
               add:
@@ -56,6 +69,8 @@ spec:
               value: "1000"
             - name: WEBUI_PORT
               value: "8080"
+            - name: QBT_Preferences__WebUI__CSRFProtection
+              value: "false"
           resources:
             requests:
               cpu: 100m
