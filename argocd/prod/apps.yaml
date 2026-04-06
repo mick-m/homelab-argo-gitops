@@ -60,6 +60,7 @@ spec:
       chart: kube-prometheus-stack
       targetRevision: "82.17.1"
       helm:
+        skipCrds: true
         valueFiles:
           - $values/base/monitoring/values.yaml
     # Values from the GitOps repo
