@@ -43,6 +43,8 @@ spec:
               value: 10.42.0.0/16,10.43.0.0/16
             - name: DOT_IPV6
               value: "off"
+            - name: SERVER_COUNTRIES
+              value: Ireland
           securityContext:
             capabilities:
               add:
@@ -81,13 +83,13 @@ spec:
           livenessProbe:
             tcpSocket:
               port: 8080
-            initialDelaySeconds: 30
+            initialDelaySeconds: 90
             periodSeconds: 30
             timeoutSeconds: 5
           readinessProbe:
             tcpSocket:
               port: 8080
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 3
           volumeMounts:
