@@ -25,18 +25,16 @@ spec:
               value: "qbittorrent.media.svc"
             - name: QBITTORRENT_PORT
               value: "80"
-            - name: QBITTORRENT_USERNAME
+            - name: QBITTORRENT_USER
               valueFrom:
                 secretKeyRef:
                   name: qbittorrent-exporter-credentials
                   key: username
-                  optional: true
-            - name: QBITTORRENT_PASSWORD
+            - name: QBITTORRENT_PASS
               valueFrom:
                 secretKeyRef:
                   name: qbittorrent-exporter-credentials
                   key: password
-                  optional: true
             - name: EXPORTER_PORT
               value: "9561"
           ports:
