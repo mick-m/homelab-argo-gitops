@@ -22,7 +22,7 @@ spec:
           image: ghcr.io/martabal/qbittorrent-exporter:latest
           env:
             - name: QBITTORRENT_BASE_URL
-              value: "http://qbittorrent.media.svc:8080"
+              value: "http://qbittorrent.media.svc:80"
             - name: QBITTORRENT_USERNAME
               valueFrom:
                 secretKeyRef:
