@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - ingress.yaml
   - ../../../base/monitoring/exporters
+  - sealed-secrets
 # NOTE: kube-prometheus-stack is deployed via Helm by ArgoCD.
 # The values.yaml in this directory is referenced by the ArgoCD Application.
 # The ingress and exporters are managed separately via Kustomize.

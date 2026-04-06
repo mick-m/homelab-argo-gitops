@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../base/monitoring
+  - sealed-secrets
+# NOTE: kube-prometheus-stack is deployed via Helm by ArgoCD.
+# The values.yaml is referenced by the ArgoCD Application.
+# The ingress, exporters, and sealed secrets are managed separately via Kustomize.

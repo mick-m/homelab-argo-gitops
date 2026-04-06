@@ -1,0 +1,14 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: proxmox-exporter-config
+  namespace: monitoring
+spec:
+  encryptedData:
+    pve.yml: AgAFCv1gDFzsh5cjPzI3kr8jdj8Jjs5+5ES6Ocyac8a+w4vpmRb0MK0fo1ppmJ5SoGL5MCuvHoi1E+g5oSc2cpov2iSVry61thml1Irvk9m+AeMpv3rcsGbafE6ce9FJqVw1/G4bEb6dfxYk+z24J8vwPIj3DnHPrq8uajrY/b2Zt7KrErMtE3VtO6iR+2ktWQTCrK5HLpwLJ0vikYuzPXWeNRQWQS9eYdqzs90y69vXD59FRIx/RQHyNFqVRLwdojxZlevy1N+JcCOSNM/Z7ZUcbaz9AhCSb/IuC6f9hOldQUA6DL4c94wPwrjNwo0kOIKHkG7cTcJgMs7cHX5OS5QyYg50+uhgc7UeMFYadeaL0mKPCXKf51akmrv5c7ELtL6BFiXhFVJHmYVy0aYu9c6myidIJs/MkMneqJHfn3FQqiX+skepwzbwU6qtWZ9sXZirFXaaDlBuGl3cTbqUHijY+pzQcWrtL7YhqcFT8n3a1MibvNjgnNAF6GDdPS8DhbmQiamXSc3bTWzzYym2aTjh1yOYjQ3cuBTQCZCbmkeuco3GJngPDVi5Yn6JuVKvVoKfVNlVDNFRB5YiepZey5UB3me75BfFwAZ+Ln0GKcX+8b0XGnmmd1gxxkMNpUgumD12j3v68iRkuA7tm5oIqaJ2jkGKUi4O0wMPmOyp/NWj2eUfST9T4oGpmcJ0su/VDs15rvDm3X3pHTVcQaFPJsRXJzgP/X4nSqnWMYiuNUI3qdclEhtNufI5k98gfQRu+tpUOJYa+4jjgHEjFahSUFDMX85IPzEI5YjvVrHIKKDc9kRdEjUFgIbBdTb96tvcDja/u8OSclMDvVm2X6dwceG9YQ5SrLhfSc9bo8tvKVgMc3at2xEe2gggxKAu5sa9
+  template:
+    metadata:
+      name: proxmox-exporter-config
+      namespace: monitoring
+    type: Opaque

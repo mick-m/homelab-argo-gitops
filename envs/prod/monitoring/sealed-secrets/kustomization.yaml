@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - exportarr-credentials-sealed.yaml
+  - nextcloud-exporter-credentials-sealed.yaml
+  - proxmox-exporter-config-sealed.yaml
+  - qbittorrent-exporter-credentials-sealed.yaml
+  - unpoller-credentials-sealed.yaml

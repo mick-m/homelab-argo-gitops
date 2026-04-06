@@ -4,12 +4,4 @@ resources:
   - deployment.yaml
   - service.yaml
   - servicemonitor.yaml
-# NOTE: The nextcloud-exporter-credentials Secret must be created manually.
-# It is NOT stored in git.
-#
-# Generate a Nextcloud serverinfo token:
-#   In Nextcloud, go to Settings > Monitoring
-#   Copy the token shown for the "serverinfo" endpoint
-#
-#   kubectl -n monitoring create secret generic nextcloud-exporter-credentials \
-#     --from-literal=token=<your-serverinfo-token>
+# Secret: nextcloud-exporter-credentials — managed via SealedSecrets in envs/*/monitoring/sealed-secrets/
