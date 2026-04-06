@@ -21,14 +21,48 @@ spec:
           - "1"
         node:
           - "1"
-      # The PVE exporter uses multi-target pattern.
-      # The target Proxmox host is passed via the 'target' query param.
-      # We use relabeling to route to the correct Proxmox host.
       relabelings:
         - sourceLabels: [__address__]
           targetLabel: __param_target
-          replacement: "192.168.1.100"
+          replacement: "192.168.1.152"
         - sourceLabels: [__param_target]
           targetLabel: instance
+          replacement: "pve"
+        - targetLabel: __address__
+          replacement: proxmox-exporter.monitoring.svc:9221
+    - port: metrics
+      interval: 60s
+      scrapeTimeout: 30s
+      path: /pve
+      params:
+        cluster:
+          - "1"
+        node:
+          - "1"
+      relabelings:
+        - sourceLabels: [__address__]
+          targetLabel: __param_target
+          replacement: "192.168.1.153"
+        - sourceLabels: [__param_target]
+          targetLabel: instance
+          replacement: "pve2"
+        - targetLabel: __address__
+          replacement: proxmox-exporter.monitoring.svc:9221
+    - port: metrics
+      interval: 60s
+      scrapeTimeout: 30s
+      path: /pve
+      params:
+        cluster:
+          - "1"
+        node:
+          - "1"
+      relabelings:
+        - sourceLabels: [__address__]
+          targetLabel: __param_target
+          replacement: "192.168.1.219"
+        - sourceLabels: [__param_target]
+          targetLabel: instance
+          replacement: "pve3"
         - targetLabel: __address__
           replacement: proxmox-exporter.monitoring.svc:9221
