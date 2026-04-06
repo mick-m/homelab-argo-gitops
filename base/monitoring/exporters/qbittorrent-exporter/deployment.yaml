@@ -19,10 +19,12 @@ spec:
     spec:
       containers:
         - name: qbittorrent-exporter
-          image: ghcr.io/martabal/qbittorrent-exporter:latest
+          image: ghcr.io/esanchezm/prometheus-qbittorrent-exporter:latest
           env:
-            - name: QBITTORRENT_BASE_URL
-              value: "http://qbittorrent.media.svc:80"
+            - name: QBITTORRENT_HOST
+              value: "qbittorrent.media.svc"
+            - name: QBITTORRENT_PORT
+              value: "80"
             - name: QBITTORRENT_USERNAME
               valueFrom:
                 secretKeyRef:
