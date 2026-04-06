@@ -22,7 +22,7 @@ spec:
           image: docker.io/xperimental/nextcloud-exporter:0.9.0
           env:
             - name: NEXTCLOUD_SERVER
-              value: "https://cloud.sunnyside.home"
+              value: "http://nextcloud.productivity.svc:80"
             - name: NEXTCLOUD_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:
