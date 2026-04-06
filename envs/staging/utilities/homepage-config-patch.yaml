@@ -40,7 +40,7 @@ data:
             description: Proxmox node 3
         - ArgoCD:
             href: https://staging-argocd.sunnyside.home
-            icon: argocd.png
+            icon: argo-cd.png
             description: GitOps continuous delivery
         - Apache Guacamole:
             href: https://staging-guac.sunnyside.home/guacamole/

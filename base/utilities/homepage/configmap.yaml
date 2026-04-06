@@ -29,7 +29,7 @@ data:
             description: Proxmox node 3
         - ArgoCD:
             href: https://argocd.sunnyside.home
-            icon: argocd.png
+            icon: argo-cd.png
             description: GitOps continuous delivery
         - Apache Guacamole:
             href: https://guac.sunnyside.home/guacamole/
