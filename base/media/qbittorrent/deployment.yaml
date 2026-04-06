@@ -18,17 +18,6 @@ spec:
         app.kubernetes.io/part-of: homelab
     spec:
       enableServiceLinks: false
-      initContainers:
-        - name: disable-ipv6
-          image: busybox:1.36
-          command:
-            - sh
-            - -c
-            - |
-              sysctl -w net.ipv6.conf.all.disable_ipv6=1
-              sysctl -w net.ipv6.conf.default.disable_ipv6=1
-          securityContext:
-            privileged: true
       containers:
         # Gluetun VPN sidecar
         - name: gluetun
