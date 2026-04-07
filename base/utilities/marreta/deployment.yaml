@@ -30,6 +30,8 @@ spec:
               value: Marreta
             - name: SITE_URL
               value: https://marreta.sunnyside.home
+            - name: SITE_DESCRIPTION
+              value: Paywall bypass tool
             - name: LANGUAGE
               value: en
             - name: DNS_SERVERS

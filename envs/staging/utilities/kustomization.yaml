@@ -93,7 +93,7 @@ patches:
       name: marreta
     patch: |
       - op: replace
-        path: /spec/template/spec/containers/0/env/2/value
+        path: /spec/template/spec/containers/0/env/3/value
         value: https://staging-marreta.sunnyside.home
 
   - path: homepage-config-patch.yaml
