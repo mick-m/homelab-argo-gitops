@@ -83,10 +83,10 @@ data:
             href: https://pdf.sunnyside.home
             icon: stirling-pdf.png
             description: PDF toolkit
-        - 13ft Ladder:
-            href: https://13ft.sunnyside.home
-            icon: mdi-ladder
-            description: Paywall bypass proxy
+        - Marreta:
+            href: https://marreta.sunnyside.home
+            icon: mdi-hammer
+            description: Paywall bypass tool
         - OpenSpeedTest:
             href: https://speedtest.sunnyside.home
             icon: openspeedtest.png

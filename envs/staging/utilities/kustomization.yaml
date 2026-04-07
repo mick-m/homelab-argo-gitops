@@ -76,17 +76,25 @@ patches:
 
   - target:
       kind: Ingress
-      name: thirteenft
+      name: marreta
     patch: |
       - op: replace
         path: /spec/rules/0/host
-        value: staging-13ft.sunnyside.home
+        value: staging-marreta.sunnyside.home
       - op: replace
         path: /spec/tls/0/hosts/0
-        value: staging-13ft.sunnyside.home
+        value: staging-marreta.sunnyside.home
       - op: replace
         path: /spec/tls/0/secretName
-        value: staging-thirteenft-tls
+        value: staging-marreta-tls
+
+  - target:
+      kind: Deployment
+      name: marreta
+    patch: |
+      - op: replace
+        path: /spec/template/spec/containers/0/env/2/value
+        value: https://staging-marreta.sunnyside.home
 
   - path: homepage-config-patch.yaml
 

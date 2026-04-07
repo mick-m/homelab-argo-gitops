@@ -1,31 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: thirteenft
+  name: marreta
   namespace: utilities
   labels:
-    app.kubernetes.io/name: thirteenft
+    app.kubernetes.io/name: marreta
     app.kubernetes.io/part-of: homelab
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: thirteenft
+      app.kubernetes.io/name: marreta
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: thirteenft
+        app.kubernetes.io/name: marreta
         app.kubernetes.io/part-of: homelab
     spec:
       containers:
-        - name: thirteenft
-          image: wasimaster/13ft:latest
+        - name: marreta
+          image: ghcr.io/manualdousuario/marreta:latest
           ports:
-            - containerPort: 5000
+            - containerPort: 80
               protocol: TCP
           env:
             - name: TZ
               value: Europe/Dublin
+            - name: SITE_NAME
+              value: Marreta
+            - name: SITE_URL
+              value: https://marreta.sunnyside.home
+            - name: LANGUAGE
+              value: en
+            - name: DNS_SERVERS
+              value: "1.1.1.1,8.8.8.8"
           resources:
             requests:
               cpu: 25m
@@ -35,13 +43,13 @@ spec:
               memory: 128Mi
           livenessProbe:
             tcpSocket:
-              port: 5000
+              port: 80
             initialDelaySeconds: 15
             periodSeconds: 30
             timeoutSeconds: 5
           readinessProbe:
             tcpSocket:
-              port: 5000
+              port: 80
             initialDelaySeconds: 5
             periodSeconds: 10
             timeoutSeconds: 3
