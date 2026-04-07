@@ -88,10 +88,10 @@ grafana:
         gnetId: 15116
         revision: 1
         datasource: Prometheus
-      # Node Exporter / macOS dashboard
-      macos-node-exporter:
-        gnetId: 16966
-        revision: 1
+      # Node Exporter Full (works with external node_exporter targets)
+      node-exporter-full:
+        gnetId: 1860
+        revision: 37
         datasource: Prometheus
       # Nextcloud dashboard
       nextcloud:
