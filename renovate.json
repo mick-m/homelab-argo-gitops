@@ -1,0 +1,37 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "baseBranches": ["main"],
+  "kubernetes": {
+    "fileMatch": ["\\.yaml$"]
+  },
+  "helmv3": {
+    "fileMatch": ["argocd/.+\\.yaml$"]
+  },
+  "packageRules": [
+    {
+      "description": "Auto-merge patch updates for container images",
+      "matchUpdateTypes": ["patch", "digest"],
+      "matchDatasources": ["docker"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Group all Helm chart updates",
+      "matchDatasources": ["helm"],
+      "groupName": "helm-charts"
+    },
+    {
+      "description": "Pin latest tags to digests for reproducibility",
+      "matchCurrentValue": "latest",
+      "matchDatasources": ["docker"],
+      "pinDigests": true
+    }
+  ],
+  "schedule": ["before 8am on Monday"],
+  "timezone": "Europe/Dublin",
+  "prHourlyLimit": 5,
+  "prConcurrentLimit": 10
+}
