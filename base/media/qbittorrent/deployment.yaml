@@ -35,7 +35,7 @@ spec:
             - name: DOT_IPV6
               value: "off"
             - name: SERVER_COUNTRIES
-              value: Ireland
+              value: Netherlands
           securityContext:
             capabilities:
               add:
