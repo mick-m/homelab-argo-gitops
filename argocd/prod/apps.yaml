@@ -27,7 +27,7 @@ spec:
       project: default
       source:
         repoURL: https://github.com/mick-m/homelab-argo-gitops.git
-        targetRevision: main
+        targetRevision: prod
         path: "{{path}}"
       destination:
         server: https://kubernetes.default.svc
@@ -65,11 +65,11 @@ spec:
           - $values/base/monitoring/values.yaml
     # Values from the GitOps repo
     - repoURL: https://github.com/mick-m/homelab-argo-gitops.git
-      targetRevision: main
+      targetRevision: prod
       ref: values
     # Kustomize overlay (ingress + exporters + sealed secrets)
     - repoURL: https://github.com/mick-m/homelab-argo-gitops.git
-      targetRevision: main
+      targetRevision: prod
       path: envs/prod/monitoring
   destination:
     server: https://kubernetes.default.svc
