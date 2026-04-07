@@ -36,6 +36,7 @@ grafana:
           cd /var/lib/grafana/dashboards/exporters
           for f in *.json; do
             sed -i 's/\${DS_PROMETHEUS}/prometheus/g' "$f"
+            sed -i 's/\${DS_MIMIR}/prometheus/g' "$f"
           done
       volumeMounts:
         - name: storage
@@ -95,6 +96,16 @@ grafana:
       node-exporter-full:
         gnetId: 1860
         revision: 37
+        datasource: Prometheus
+      # TrueNAS dashboards
+      truenas-overview:
+        url: https://raw.githubusercontent.com/Supporterino/truenas-graphite-to-prometheus/main/dashboards/truenas_scale.json
+        datasource: Prometheus
+      truenas-disk-insights:
+        url: https://raw.githubusercontent.com/Supporterino/truenas-graphite-to-prometheus/main/dashboards/truenas_scale_disk_insights.json
+        datasource: Prometheus
+      truenas-temperatures:
+        url: https://raw.githubusercontent.com/Supporterino/truenas-graphite-to-prometheus/main/dashboards/truenas_scale_temperatures.json
         datasource: Prometheus
       # Nextcloud dashboard
       nextcloud:
