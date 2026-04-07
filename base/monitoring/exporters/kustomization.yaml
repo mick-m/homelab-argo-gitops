@@ -6,4 +6,5 @@ resources:
   - truenas-graphite
   - exportarr
   - qbittorrent-exporter
+  - macos-node-exporter
   - nextcloud-exporter
