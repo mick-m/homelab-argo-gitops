@@ -61,6 +61,17 @@ patches:
         value: staging-nextcloud-tls
 
   - target:
+      kind: Deployment
+      name: nextcloud
+    patch: |
+      - op: replace
+        path: /spec/template/spec/containers/1/env/9/value
+        value: staging-cloud.sunnyside.home
+      - op: replace
+        path: /spec/template/spec/containers/1/env/11/value
+        value: https://staging-cloud.sunnyside.home
+
+  - target:
       kind: Ingress
       name: paperless
     patch: |
