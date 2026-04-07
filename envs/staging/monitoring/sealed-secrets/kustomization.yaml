@@ -6,3 +6,4 @@ resources:
   - proxmox-exporter-config-sealed.yaml
   - qbittorrent-exporter-credentials-sealed.yaml
   - unpoller-credentials-sealed.yaml
+  - grafana-admin-credentials-sealed.yaml

@@ -6,7 +6,10 @@ alertmanager:
   enabled: false
 
 grafana:
-  adminPassword: elGFw6zVWOmvhoZqSjMOoZBrMxctE9
+  admin:
+    existingSecret: grafana-admin-credentials
+    userKey: admin-user
+    passwordKey: admin-password
   persistence:
     enabled: true
     size: 2Gi
