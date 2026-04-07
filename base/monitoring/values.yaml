@@ -23,6 +23,20 @@ grafana:
     limits:
       cpu: 500m
       memory: 512Mi
+  extraInitContainers:
+    - name: fix-datasource-uids
+      image: busybox:latest
+      command:
+        - sh
+        - -c
+        - |
+          cd /var/lib/grafana/dashboards/exporters
+          for f in *.json; do
+            sed -i 's/\${DS_PROMETHEUS}/prometheus/g' "$f"
+          done
+      volumeMounts:
+        - name: storage
+          mountPath: /var/lib/grafana
   # Community Grafana dashboards for exporters
   dashboardProviders:
     dashboardproviders.yaml:
