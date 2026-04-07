@@ -34,6 +34,8 @@ spec:
               value: "off"
             - name: DOT_IPV6
               value: "off"
+            - name: DNS_ADDRESS
+              value: "103.86.96.100"
             - name: SERVER_COUNTRIES
               value: Netherlands
           securityContext:
