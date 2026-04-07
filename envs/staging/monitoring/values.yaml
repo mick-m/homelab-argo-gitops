@@ -39,6 +39,7 @@ grafana:
             sed -i 's/\${DS_PROMETHEUS}/prometheus/g' "$f"
             sed -i 's/\${DS_MIMIR}/prometheus/g' "$f"
           done
+          sed -i 's/job=\\"node\\"/job=~\\".*node.*\\"/g' node-exporter-macos.json 2>/dev/null || true
       volumeMounts:
         - name: storage
           mountPath: /var/lib/grafana
