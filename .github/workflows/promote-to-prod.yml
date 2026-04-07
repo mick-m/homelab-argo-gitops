@@ -1,0 +1,25 @@
+---
+name: Promote to Prod
+on:
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  promote:
+    name: Merge main → prod
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prod
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fast-forward prod to main
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git merge origin/main --ff-only
+          git push origin prod
