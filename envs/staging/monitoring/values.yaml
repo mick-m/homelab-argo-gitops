@@ -6,9 +6,6 @@ alertmanager:
   enabled: false
 
 grafana:
-  defaultDashboards:
-    nodeExporter:
-      enabled: false
   admin:
     existingSecret: grafana-admin-credentials
     userKey: admin-user
