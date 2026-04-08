@@ -1,0 +1,25 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cert-manager-alerts
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/part-of: homelab
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: cert-manager
+      rules:
+        - alert: CertificateRenewalImminent
+          expr: |
+            (certmanager_certificate_expiration_timestamp_seconds - time()) < (37 * 24 * 3600)
+            and
+            (certmanager_certificate_expiration_timestamp_seconds - time()) > 0
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Certificate {{ $labels.namespace }}/{{ $labels.name }} renewing soon"
+            description: "Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} expires in {{ $value | humanizeDuration }}. cert-manager will attempt renewal in ~1 week."

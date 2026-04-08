@@ -8,3 +8,4 @@ resources:
   - qbittorrent-exporter
   - macos-node-exporter
   - nextcloud-exporter
+  - cert-manager-alerts
