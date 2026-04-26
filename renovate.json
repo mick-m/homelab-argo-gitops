@@ -28,6 +28,12 @@
       "matchCurrentValue": "latest",
       "matchDatasources": ["docker"],
       "pinDigests": true
+    },
+    {
+      "description": "Block major upgrades for stateful services (require manual DB migration)",
+      "matchPackageNames": ["postgres", "redis"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
     }
   ],
   "schedule": ["before 8am on Monday"],
