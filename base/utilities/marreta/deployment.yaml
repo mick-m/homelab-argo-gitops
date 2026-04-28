@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: marreta
-          image: ghcr.io/manualdousuario/marreta:latest
+          image: ghcr.io/manualdousuario/marreta:latest@sha256:474d7af58bef8bc98da4a0e14052542d2e77f8950be502aa3204b3a6330e4a79
           ports:
             - containerPort: 80
               protocol: TCP

@@ -22,7 +22,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: plex
-          image: linuxserver/plex:latest
+          image: linuxserver/plex:latest@sha256:b785bdd60e781662f16e0526a6b54c07856739df95ab558a674a3c084dbde423
           ports:
             - containerPort: 32400
               protocol: TCP
