@@ -20,7 +20,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: sonarr
-          image: linuxserver/sonarr:latest
+          image: linuxserver/sonarr:latest@sha256:3580aec3802c915f0f819a88d5099abce61734b925732b8393d176b5dc561020
           ports:
             - containerPort: 8989
               protocol: TCP

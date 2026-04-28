@@ -23,7 +23,7 @@ spec:
         fsGroup: 0
       containers:
         - name: metube
-          image: alexta69/metube:latest
+          image: alexta69/metube:latest@sha256:ee9a49b477215d33a8c330e9b9bb5c70588e265637cba9ff3888b75b87c00bf0
           ports:
             - containerPort: 8081
               protocol: TCP
