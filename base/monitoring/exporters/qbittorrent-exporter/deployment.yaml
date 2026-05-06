@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: qbittorrent-exporter
-          image: ghcr.io/esanchezm/prometheus-qbittorrent-exporter:latest
+          image: ghcr.io/esanchezm/prometheus-qbittorrent-exporter:latest@sha256:22bfda2c06fb4a65215de95e25288df97199424f44298b78dbfdfd82d34349b8
           env:
             - name: QBITTORRENT_HOST
               value: "qbittorrent.media.svc"
