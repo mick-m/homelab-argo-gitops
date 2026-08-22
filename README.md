@@ -40,10 +40,12 @@ homelab-argo-gitops/
 
 | Environment | Branch | Sync Policy | Cluster |
 |-------------|--------|-------------|---------|
-| staging | `main` | Auto-sync | k3s-staging (192.168.1.251) |
-| prod | `prod` | Auto-sync | k3s-prod (192.168.1.173) |
+| staging | `main` | Auto-sync (prune + self-heal) | k3s-staging (192.168.1.251) |
+| prod | `prod` | Manual sync | k3s-prod (192.168.1.173) |
 
-Both environments auto-sync from their respective branches. Promotion is controlled by which branch ArgoCD tracks, not by disabling sync.
+Staging auto-syncs from `main` — merging a PR deploys it.
+
+Prod tracks the `prod` branch but has **no** `automated` sync policy. Fast-forwarding the branch only stages the change: ArgoCD notices it and marks the `prod-*` Applications `OutOfSync`, then waits. Deploying is a deliberate second step. Promotion is therefore two gates — which commits reach the `prod` branch, and when you sync them.
 
 ## Namespaces
 
@@ -65,13 +67,15 @@ Monitoring uses the `kube-prometheus-stack` Helm chart with additional dashboard
 
 ## How To: Promote from Staging to Prod
 
-Promotion is branch-based. Staging tracks `main`, prod tracks `prod`.
+Promotion is branch-based. Staging tracks `main`, prod tracks `prod`. It takes two steps — moving the branch, then syncing ArgoCD.
 
-**Option 1: GitHub Actions (recommended)**
+### Step 1 — Fast-forward the `prod` branch
+
+**Option A: GitHub Actions (recommended)**
 
 Run the [Promote to Prod](../../actions/workflows/promote-to-prod.yml) workflow from the Actions tab. This fast-forwards the `prod` branch to match `main`.
 
-**Option 2: Command line**
+**Option B: Command line**
 
 ```bash
 git checkout prod
@@ -79,7 +83,20 @@ git merge main --ff-only
 git push origin prod
 ```
 
-ArgoCD on prod auto-syncs from the `prod` branch.
+### Step 2 — Sync the prod Applications
+
+Prod is manual-sync, so nothing deploys until you sync it. Either click **Sync** on each `OutOfSync` app in the ArgoCD UI, or from the CLI:
+
+```bash
+# Sync everything labelled env=prod (prod-utilities, prod-media,
+# prod-productivity, prod-infra, prod-monitoring)
+argocd app sync -l env=prod
+
+# Or one namespace at a time
+argocd app sync prod-media
+```
+
+Prod also has no `selfHeal`, so manual `kubectl` changes on the prod cluster will *not* be reverted automatically — they persist until the next sync.
 
 ## Dependency Updates (Renovate)
 
@@ -99,6 +116,7 @@ Configuration: [`renovate.json`](renovate.json)
 3. **During the week** — Review staging
 4. **When ready** — Merge Renovate PRs, then:
    - Run [Promote to Prod](../../actions/workflows/promote-to-prod.yml) on GitHub Actions
+   - Sync the `prod-*` apps in ArgoCD (`argocd app sync -l env=prod`) — prod is manual-sync
    - Click play on `update-prod` in the [GitLab pipeline](https://gitlab.sunnyside.home/root/homelab-os-updates/-/pipelines)
 
 ## How To: Add a New Service
