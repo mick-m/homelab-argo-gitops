@@ -22,6 +22,16 @@ spec:
     spec:
       enableServiceLinks: false
       terminationGracePeriodSeconds: 60
+      # Both workers exit the process on a failed Postgres connection, so
+      # without this they crash-loop through every rollout until the queue DB
+      # finishes initdb. Cheap to wait; noisy not to.
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - until nc -z firecrawl-postgres 5432; do echo waiting for postgres; sleep 2; done
       containers:
         - name: worker
           image: ghcr.io/firecrawl/firecrawl:2.10.19
@@ -74,6 +84,13 @@ spec:
     spec:
       enableServiceLinks: false
       terminationGracePeriodSeconds: 60
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - until nc -z firecrawl-postgres 5432; do echo waiting for postgres; sleep 2; done
       containers:
         - name: nuq-worker
           image: ghcr.io/firecrawl/firecrawl:2.10.19

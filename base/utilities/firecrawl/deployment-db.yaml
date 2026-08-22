@@ -48,8 +48,15 @@ spec:
               memory: 1Gi
           livenessProbe:
             exec:
+              # -h forces a TCP check. Without it pg_isready uses the unix
+              # socket, which the entrypoint has up during initdb while TCP is
+              # still closed — the pod would report Ready before it can serve.
               command:
                 - pg_isready
+                - -h
+                - 127.0.0.1
+                - -p
+                - "5432"
                 - -U
                 - postgres
             initialDelaySeconds: 30
@@ -57,8 +64,15 @@ spec:
             timeoutSeconds: 5
           readinessProbe:
             exec:
+              # -h forces a TCP check. Without it pg_isready uses the unix
+              # socket, which the entrypoint has up during initdb while TCP is
+              # still closed — the pod would report Ready before it can serve.
               command:
                 - pg_isready
+                - -h
+                - 127.0.0.1
+                - -p
+                - "5432"
                 - -U
                 - postgres
             initialDelaySeconds: 10
