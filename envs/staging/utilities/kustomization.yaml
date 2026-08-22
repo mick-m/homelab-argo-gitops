@@ -3,6 +3,17 @@ kind: Kustomization
 resources:
   - ../../../base/utilities
 
+# Replaces the base homepage ConfigMap with the staging dashboard (staging-*
+# hostnames). behavior: replace swaps the contents while keeping the generated
+# name + content hash, so staging keeps the same auto-rollout behaviour as prod.
+configMapGenerator:
+  - name: homepage-config
+    namespace: utilities
+    behavior: replace
+    files:
+      - homepage-config/services.yaml
+      - homepage-config/settings.yaml
+
 patches:
   - target:
       kind: Ingress
@@ -109,8 +120,6 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/env/3/value
         value: https://staging-marreta.sunnyside.home
-
-  - path: homepage-config-patch.yaml
 
   - target:
       kind: Deployment
