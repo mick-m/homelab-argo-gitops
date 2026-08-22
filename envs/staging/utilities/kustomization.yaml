@@ -87,20 +87,6 @@ patches:
 
   - target:
       kind: Ingress
-      name: marreta
-    patch: |
-      - op: replace
-        path: /spec/rules/0/host
-        value: staging-marreta.sunnyside.home
-      - op: replace
-        path: /spec/tls/0/hosts/0
-        value: staging-marreta.sunnyside.home
-      - op: replace
-        path: /spec/tls/0/secretName
-        value: staging-marreta-tls
-
-  - target:
-      kind: Ingress
       name: firecrawl
     patch: |
       - op: replace
@@ -112,14 +98,6 @@ patches:
       - op: replace
         path: /spec/tls/0/secretName
         value: staging-firecrawl-tls
-
-  - target:
-      kind: Deployment
-      name: marreta
-    patch: |
-      - op: replace
-        path: /spec/template/spec/containers/0/env/3/value
-        value: https://staging-marreta.sunnyside.home
 
   - target:
       kind: Deployment

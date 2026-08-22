@@ -15,7 +15,7 @@ GitOps repository for the Sunnyside homelab Kubernetes clusters, managed by Argo
 ```
 homelab-argo-gitops/
 ├── base/                          # Canonical Kustomize bases per namespace/service
-│   ├── utilities/                 # homepage, it-tools, open-webui, marreta, firecrawl, etc.
+│   ├── utilities/                 # homepage, it-tools, open-webui, firecrawl, etc.
 │   ├── media/                     # plex, sonarr, radarr, bazarr, etc.
 │   ├── productivity/              # freshrss, mealie, nextcloud, paperless, searxng
 │   ├── infra/                     # guacamole, uptime-kuma, netalertx
@@ -51,7 +51,7 @@ Prod tracks the `prod` branch but has **no** `automated` sync policy. Fast-forwa
 
 | Namespace | Services |
 |-----------|----------|
-| `utilities` | homepage, it-tools, open-webui, openspeedtest, stirling-pdf, marreta, firecrawl |
+| `utilities` | homepage, it-tools, open-webui, openspeedtest, stirling-pdf, firecrawl |
 | `media` | plex, sonarr, radarr, bazarr, prowlarr, qbittorrent, seerr, tautulli, tunarr, metube, flaresolverr |
 | `productivity` | freshrss, mealie, searxng, nextcloud (+db), paperless (+db) |
 | `infra` | guacamole (+db), uptime-kuma, netalertx |

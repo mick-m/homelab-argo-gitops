@@ -80,10 +80,6 @@
         href: https://staging-pdf.sunnyside.home
         icon: stirling-pdf.png
         description: PDF toolkit
-    - Marreta:
-        href: https://staging-marreta.sunnyside.home
-        icon: mdi-hammer
-        description: Paywall bypass tool
     - OpenSpeedTest:
         href: https://staging-speedtest.sunnyside.home
         icon: openspeedtest.png
