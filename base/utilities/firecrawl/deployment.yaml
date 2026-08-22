@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: firecrawl-api
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: firecrawl-api
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: firecrawl-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: firecrawl-api
+        app.kubernetes.io/part-of: homelab
+    spec:
+      enableServiceLinks: false
+      terminationGracePeriodSeconds: 180
+      containers:
+        - name: api
+          image: ghcr.io/firecrawl/firecrawl:2.10.19
+          command:
+            - node
+          # Keep max-old-space-size below the memory limit or V8 will grow
+          # past the cgroup ceiling and the pod gets OOMKilled.
+          args:
+            - --max-old-space-size=3072
+            - dist/src/index.js
+          ports:
+            - containerPort: 3002
+              protocol: TCP
+          env:
+            # Firecrawl selects its process role from this variable.
+            - name: FLY_PROCESS_GROUP
+              value: app
+            - name: PORT
+              value: "3002"
+          envFrom:
+            - configMapRef:
+                name: firecrawl-config
+          resources:
+            requests:
+              cpu: 500m
+              memory: 2Gi
+            limits:
+              cpu: "1"
+              memory: 4Gi
+          startupProbe:
+            httpGet:
+              path: /v0/health/readiness
+              port: 3002
+            failureThreshold: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /v0/health/liveness
+              port: 3002
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /v0/health/readiness
+              port: 3002
+            periodSeconds: 10
+            timeoutSeconds: 5

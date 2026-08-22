@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: firecrawl-api
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: firecrawl-api
+    app.kubernetes.io/part-of: homelab
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: firecrawl-api
+  ports:
+    - name: http
+      port: 3002
+      targetPort: 3002
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: firecrawl-playwright
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: firecrawl-playwright
+    app.kubernetes.io/part-of: homelab
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: firecrawl-playwright
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: firecrawl-redis
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: firecrawl-redis
+    app.kubernetes.io/part-of: homelab
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: firecrawl-redis
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: firecrawl-postgres
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: firecrawl-postgres
+    app.kubernetes.io/part-of: homelab
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: firecrawl-postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+      protocol: TCP

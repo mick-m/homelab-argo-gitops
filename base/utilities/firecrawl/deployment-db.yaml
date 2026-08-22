@@ -1,0 +1,72 @@
+# Queue backend for nuq. The image is postgres:17 with pg_cron plus Firecrawl's
+# nuq.sql loaded via /docker-entrypoint-initdb.d, so the schema is recreated on
+# every fresh pod. The data is transient job state, hence emptyDir rather than a
+# PVC — losing it costs an in-flight crawl, nothing more.
+#
+# POSTGRES_HOST_AUTH_METHOD=trust keeps a database password out of this repo.
+# The service is ClusterIP-only and the DB holds no durable data. Revisit if
+# NetworkPolicies land (see homelab-security-review.md §3.1).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: firecrawl-postgres
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: firecrawl-postgres
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: firecrawl-postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: firecrawl-postgres
+        app.kubernetes.io/part-of: homelab
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: postgres
+          image: ghcr.io/firecrawl/nuq-postgres:latest
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_DB
+              value: postgres
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: trust
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+          volumeMounts:
+            - name: db-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: db-data
+          emptyDir: {}

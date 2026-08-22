@@ -89,6 +89,20 @@ patches:
         value: staging-marreta-tls
 
   - target:
+      kind: Ingress
+      name: firecrawl
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-firecrawl.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-firecrawl.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-firecrawl-tls
+
+  - target:
       kind: Deployment
       name: marreta
     patch: |

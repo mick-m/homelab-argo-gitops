@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: firecrawl-config
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: firecrawl
+    app.kubernetes.io/part-of: homelab
+data:
+  HOST: "0.0.0.0"
+  ENV: "production"
+  IS_KUBERNETES: "true"
+  LOGGING_LEVEL: "INFO"
+  # Self-hosted Firecrawl runs without Supabase; there is no API-key auth.
+  # Keep this reachable from the LAN only.
+  USE_DB_AUTHENTICATION: "false"
+  REDIS_URL: "redis://firecrawl-redis:6379"
+  REDIS_RATE_LIMIT_URL: "redis://firecrawl-redis:6379"
+  PLAYWRIGHT_MICROSERVICE_URL: "http://firecrawl-playwright:3000"
+  # nuq queue backend. Postgres runs with trust auth on a ClusterIP service,
+  # so no credential is stored in this repo — see deployment-db.yaml.
+  NUQ_DATABASE_URL: "postgresql://postgres@firecrawl-postgres:5432/postgres"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: firecrawl-playwright-config
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: firecrawl-playwright
+    app.kubernetes.io/part-of: homelab
+data:
+  PORT: "3000"
+  ALLOW_LOCAL_WEBHOOKS: "false"

@@ -73,6 +73,10 @@ data:
             href: https://webui.sunnyside.home
             icon: open-webui.png
             description: AI chat interface (Ollama)
+        - Firecrawl:
+            href: https://firecrawl.sunnyside.home
+            icon: mdi-fire
+            description: Web scraping & crawling API
 
     - Tools:
         - IT Tools:
