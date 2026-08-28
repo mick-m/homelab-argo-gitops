@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: unpoller
-          image: ghcr.io/unpoller/unpoller:v2.37.0
+          image: ghcr.io/unpoller/unpoller:v2.39.0
           ports:
             - name: metrics
               containerPort: 9130
