@@ -34,7 +34,7 @@ spec:
             - until nc -z firecrawl-postgres 5432; do echo waiting for postgres; sleep 2; done
       containers:
         - name: worker
-          image: ghcr.io/firecrawl/firecrawl:2.10.19
+          image: ghcr.io/firecrawl/firecrawl:2.11.310
           command:
             - node
           args:
@@ -93,7 +93,7 @@ spec:
             - until nc -z firecrawl-postgres 5432; do echo waiting for postgres; sleep 2; done
       containers:
         - name: nuq-worker
-          image: ghcr.io/firecrawl/firecrawl:2.10.19
+          image: ghcr.io/firecrawl/firecrawl:2.11.310
           command:
             - node
           args:
