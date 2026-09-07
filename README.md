@@ -21,12 +21,14 @@ homelab-argo-gitops/
 │   ├── infra/                     # guacamole, uptime-kuma, netalertx
 │   └── monitoring/                # kube-prometheus-stack (Helm values)
 ├── envs/
-│   ├── staging/                   # Overlay: staging-specific patches
-│   │   ├── kustomization.yaml
-│   │   └── sealed-secrets/
-│   └── prod/                      # Overlay: prod-specific patches
-│       ├── kustomization.yaml
-│       └── sealed-secrets/
+│   ├── staging/                   # Overlay per namespace: staging- hostname patches
+│   │   ├── utilities/             # (+ homepage-config/ — staging dashboard)
+│   │   ├── media/
+│   │   ├── productivity/
+│   │   ├── infra/
+│   │   └── monitoring/            # staging Helm values, ingress, sealed-secrets/
+│   └── prod/                      # Prod renders base/ directly — only monitoring
+│       └── monitoring/            # prod ingress + exporters + sealed-secrets/
 ├── argocd/
 │   ├── staging/
 │   │   └── apps.yaml              # ArgoCD ApplicationSet (tracks main branch)
@@ -38,10 +40,13 @@ homelab-argo-gitops/
 
 ## Environments
 
-| Environment | Branch | Sync Policy | Cluster |
-|-------------|--------|-------------|---------|
-| staging | `main` | Auto-sync (prune + self-heal) | k3s-staging (192.168.1.251) |
-| prod | `prod` | Manual sync | k3s-prod (192.168.1.173) |
+| Environment | Branch | Renders | Sync Policy | Cluster |
+|-------------|--------|---------|-------------|---------|
+| staging | `main` | `envs/staging/<ns>` | Auto-sync (prune + self-heal) | k3s-staging (192.168.1.251) |
+| prod | `prod` | `base/<ns>` | Manual sync | k3s-prod (192.168.1.173) |
+
+Note that **prod renders `base/` directly** — there is no per-namespace prod overlay.
+`base/` is production; the staging overlay is base plus `staging-` hostname patches.
 
 Staging auto-syncs from `main` — merging a PR deploys it.
 
@@ -123,17 +128,26 @@ Configuration: [`renovate.json`](renovate.json)
 
 1. Create `base/<namespace>/<service>/` with `deployment.yaml`, `service.yaml`, `ingress.yaml`, and `kustomization.yaml`
 2. Add the service directory to `base/<namespace>/kustomization.yaml`
-3. No changes needed in `envs/` — Kustomize overlays inherit from base automatically
-4. Commit and push. ArgoCD picks it up on next sync
-5. Add the service to the Homepage dashboard config in `base/utilities/homepage/configmap.yaml`
-6. Add a DNS A record and `/etc/hosts` entry for the new service
+3. Add an Ingress host patch to `envs/staging/<namespace>/kustomization.yaml` — rewrite
+   `host`, `tls[0].hosts[0]` and `tls[0].secretName` to the `staging-` prefix. **Don't skip
+   this**: without it staging inherits the bare hostname from base and both clusters claim
+   the same name.
+4. Add the service to the Homepage dashboard in *both* config files —
+   `base/utilities/homepage/config/services.yaml` (prod URLs) and
+   `envs/staging/utilities/homepage-config/services.yaml` (staging URLs)
+5. Check the render before committing:
+   `kubectl kustomize base/<namespace>` and `kubectl kustomize envs/staging/<namespace>`
+6. Commit and push to `main`. Staging auto-syncs; prod needs a promote + sync
+7. Add a DNS A record and `/etc/hosts` entry for both hostnames
 
 ## How To: Override a Value for One Environment
 
-Create a patch file in `envs/<env>/` and reference it in the environment's `kustomization.yaml`:
+Staging patches live in `envs/staging/<namespace>/kustomization.yaml` — either inline (as the
+existing hostname patches are) or as a separate file referenced from `patches:`. Prod has no
+per-namespace overlay, so a prod-only value has to be the value in `base/`.
 
 ```yaml
-# envs/staging/my-service-patch.yaml
+# envs/staging/<namespace>/my-service-patch.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -147,7 +161,10 @@ spec:
 
 Secrets are managed with [SealedSecrets](https://sealed-secrets.netlify.app/). Each cluster has its own encryption key, so secrets must be sealed per environment.
 
-Sealed secret files live in `envs/<env>/<namespace>/sealed-secrets/`.
+Sealed secret files live in `envs/<env>/<namespace>/sealed-secrets/` — today only
+`monitoring` has any (`envs/staging/monitoring/sealed-secrets/` and
+`envs/prod/monitoring/sealed-secrets/`). The same secret must be sealed twice, once per
+cluster; a sealed file is never portable between environments.
 
 Other secrets not yet migrated to SealedSecrets:
 - `vpn-credentials` (media namespace) — VPN provider credentials for gluetun/qbittorrent
