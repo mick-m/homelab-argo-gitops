@@ -5,10 +5,11 @@
   ],
   "baseBranches": ["main"],
   "kubernetes": {
-    "fileMatch": ["\\.yaml$"]
+    "managerFilePatterns": ["/\\.yaml$/"]
   },
-  "helmv3": {
-    "fileMatch": ["argocd/.+\\.yaml$"]
+  "argocd": {
+    "description": "Track Helm chart pins inside ArgoCD Application/ApplicationSet manifests (e.g. kube-prometheus-stack in argocd/*/apps.yaml). The argocd manager ships disabled — it has no default file patterns — so this block is what makes those pins visible at all.",
+    "managerFilePatterns": ["/^argocd/.+\\.yaml$/"]
   },
   "packageRules": [
     {
@@ -22,6 +23,11 @@
       "description": "Group all Helm chart updates",
       "matchDatasources": ["helm"],
       "groupName": "helm-charts"
+    },
+    {
+      "description": "Never auto-merge a Helm chart bump — charts carry CRDs and values-schema changes, and prod runs with skipCrds: true so CRDs are applied by hand",
+      "matchDatasources": ["helm"],
+      "automerge": false
     },
     {
       "description": "Pin latest tags to digests for reproducibility",

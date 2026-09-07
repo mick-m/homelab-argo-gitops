@@ -156,6 +156,31 @@ need a manual DB migration. Most images are `:latest`, so Renovate pins them to
 digests. Don't hand-pin an image tag without checking whether Renovate already
 manages it.
 
+Three managers are configured, and the distinction matters:
+
+- `kubernetes` — image tags in every `*.yaml`. This is what most PRs come from.
+- `helm-values` — images referenced inside `base/monitoring/values.yaml` and the
+  staging copy. Enabled by default; no config needed.
+- `argocd` — the Helm chart pins inside `argocd/*/apps.yaml`
+  (`spec.sources[].chart` + `targetRevision`). **This manager ships disabled** —
+  it has no default file patterns — so without the explicit block in
+  `renovate.json` those pins are invisible and drift silently. They did: the
+  `kube-prometheus-stack` pin sat 8 majors behind before this was noticed.
+
+Chart bumps never auto-merge. A chart carries CRDs and a values schema, and prod
+runs `skipCrds: true`, so its CRDs are applied by hand — an unattended chart merge
+would leave the operator and its CRDs at different versions. Before taking a chart
+PR, render both values files against the new version:
+
+```bash
+helm template kps prometheus-community/kube-prometheus-stack --version <new> \
+  -f base/monitoring/values.yaml --namespace monitoring --skip-crds >/dev/null
+```
+
+Note that editing `argocd/*/apps.yaml` changes nothing on a cluster by itself —
+those manifests are applied by hand (see the Ansible repo's AGENTS.md). A chart
+bump here is staged until someone runs `kubectl apply -f argocd/<env>/apps.yaml`.
+
 ## Commits
 
 Conventional Commits, imperative, lowercase subject: `feat:`, `fix:`, `docs:`,
