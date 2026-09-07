@@ -20,7 +20,7 @@ spec:
       enableServiceLinks: false
       initContainers:
         - name: wait-for-db
-          image: busybox:latest
+          image: busybox:latest@sha256:dc2d74b28e4cf8984fa52af1f39bc7c3d9c73760b41a74d629f5d11b1ab28616
           command:
             - sh
             - -c
@@ -29,7 +29,7 @@ spec:
               until nc -z nextcloud-db 5432; do sleep 2; done
               echo "PostgreSQL is ready"
         - name: nfs-config
-          image: busybox:latest
+          image: busybox:latest@sha256:dc2d74b28e4cf8984fa52af1f39bc7c3d9c73760b41a74d629f5d11b1ab28616
           securityContext:
             runAsUser: 33
             runAsGroup: 0
@@ -61,7 +61,7 @@ spec:
               cpu: 200m
               memory: 128Mi
         - name: nextcloud
-          image: nextcloud:latest
+          image: nextcloud:latest@sha256:b97df9e0e1ee3c8c6cc009cb3f12ddce915d624d543b3bb93882025fe323a407
           ports:
             - containerPort: 80
               protocol: TCP
