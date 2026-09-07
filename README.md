@@ -107,10 +107,18 @@ Prod also has no `selfHeal`, so manual `kubectl` changes on the prod cluster wil
 
 [Renovate](https://github.com/renovatebot/renovate) scans this repo weekly (Monday 8am, Europe/Dublin) for:
 
-- Outdated container image tags
-- Helm chart version updates
+- Container image tags in the Kustomize manifests (`kubernetes` manager)
+- Images referenced inside the monitoring Helm values (`helm-values` manager)
+- Helm chart pins inside `argocd/*/apps.yaml` (`argocd` manager)
+- GitHub Actions versions
 
 Renovate opens PRs against `main`. Merging a PR auto-deploys to staging. When verified, promote to prod using the workflow above.
+
+Image patch/digest updates auto-merge. **Helm chart updates never do** — a chart carries CRDs and a values schema, and prod runs with `skipCrds: true`, so its CRDs are applied by hand. Major bumps of `postgres` and `redis` are disabled outright; they need a manual DB migration.
+
+Note the `argocd` manager has no default file patterns — it is off unless explicitly configured. It wasn't, which is why the `kube-prometheus-stack` pin drifted eight majors behind before anyone noticed.
+
+Chart pins in `argocd/*/apps.yaml` only reach a cluster when someone runs `kubectl apply -f argocd/<env>/apps.yaml`; those manifests are not self-applying.
 
 Configuration: [`renovate.json`](renovate.json)
 
