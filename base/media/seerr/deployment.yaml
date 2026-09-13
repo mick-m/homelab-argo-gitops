@@ -20,7 +20,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: seerr
-          image: seerr/seerr:latest
+          image: seerr/seerr:latest@sha256:f4768de5f616248d723e05891f3345a1402123775d03bf0890dbfedc0831bda1
           ports:
             - containerPort: 5055
               protocol: TCP
