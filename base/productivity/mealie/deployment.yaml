@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: mealie
-          image: ghcr.io/mealie-recipes/mealie:latest
+          image: ghcr.io/mealie-recipes/mealie:latest@sha256:ba24b88462380fb59a6c7d04c6d9e607e0b6b04e31306592181186bcdab1952b
           ports:
             - containerPort: 9000
               protocol: TCP
