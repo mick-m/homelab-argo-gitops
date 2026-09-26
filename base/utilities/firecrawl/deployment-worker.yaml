@@ -27,7 +27,7 @@ spec:
       # finishes initdb. Cheap to wait; noisy not to.
       initContainers:
         - name: wait-for-postgres
-          image: busybox:latest
+          image: busybox:latest@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e
           command:
             - sh
             - -c
@@ -86,7 +86,7 @@ spec:
       terminationGracePeriodSeconds: 60
       initContainers:
         - name: wait-for-postgres
-          image: busybox:latest
+          image: busybox:latest@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e
           command:
             - sh
             - -c

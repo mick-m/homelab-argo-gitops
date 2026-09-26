@@ -20,7 +20,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: radarr
-          image: linuxserver/radarr:latest
+          image: linuxserver/radarr:latest@sha256:adb6c09d6b729ea5e642c99cea35af72702ef476bf4763f153299ac5db9f0b4f
           ports:
             - containerPort: 7878
               protocol: TCP
