@@ -20,7 +20,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: tunarr
-          image: chrisbenincasa/tunarr:latest
+          image: chrisbenincasa/tunarr:latest@sha256:60ce005b475315883be106e06ca42be31a746ef0970bae7014b3fa3d7395b1f4
           ports:
             - containerPort: 8000
               protocol: TCP
