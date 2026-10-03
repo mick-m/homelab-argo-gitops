@@ -20,7 +20,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: prowlarr
-          image: linuxserver/prowlarr:latest
+          image: linuxserver/prowlarr:latest@sha256:f2b26429893d4c4cb71941b7ee50b1bdecd9d5f9f9e02d5410615e9f4f7c8d95
           ports:
             - containerPort: 9696
               protocol: TCP
