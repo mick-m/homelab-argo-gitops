@@ -36,7 +36,7 @@ spec:
               cpu: 200m
               memory: 128Mi
         - name: searxng
-          image: searxng/searxng:latest
+          image: searxng/searxng:latest@sha256:a31763b7af3caf6ae9aac1816ba774214eb550252e06a4998f276ded8d60461b
           ports:
             - containerPort: 8080
               protocol: TCP
