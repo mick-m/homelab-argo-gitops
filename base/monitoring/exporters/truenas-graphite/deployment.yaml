@@ -20,7 +20,7 @@ spec:
       containers:
         - name: graphite-exporter
           # This image bundles graphite_exporter with TrueNAS-specific mapping
-          image: ghcr.io/supporterino/truenas-graphite-to-prometheus:latest
+          image: ghcr.io/supporterino/truenas-graphite-to-prometheus:latest@sha256:60e7645f74a3243d7fb9e6a15c05ea3b4cddfd2bc7ba9e2b11321ce1d38286dd
           ports:
             - name: graphite
               containerPort: 9109

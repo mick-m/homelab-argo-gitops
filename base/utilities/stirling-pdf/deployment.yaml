@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: stirling-pdf
-          image: frooodle/s-pdf:latest
+          image: frooodle/s-pdf:latest@sha256:b5b9e400c086e5334a4947a0d7cd589808f743f29267d7f41c18200cf4bc48b4
           ports:
             - containerPort: 8080
               protocol: TCP

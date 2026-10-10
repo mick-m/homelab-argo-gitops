@@ -20,7 +20,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: bazarr
-          image: linuxserver/bazarr:latest
+          image: linuxserver/bazarr:latest@sha256:c1673816321156b904af9b7e6415ea547ae9622e4acc375358f1e1eb9ed1e904
           ports:
             - containerPort: 6767
               protocol: TCP

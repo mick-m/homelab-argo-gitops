@@ -20,7 +20,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: tautulli
-          image: linuxserver/tautulli:latest
+          image: linuxserver/tautulli:latest@sha256:d3c53deb09f6b8fffd1476c7154da538394193955d1e909f3b126068102fb7cf
           ports:
             - containerPort: 8181
               protocol: TCP
