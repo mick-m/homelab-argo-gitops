@@ -21,7 +21,7 @@ spec:
       containers:
         # Gluetun VPN sidecar
         - name: gluetun
-          image: qmcgaw/gluetun:latest
+          image: qmcgaw/gluetun:latest@sha256:945d325be5c2abe50b89c84791b51a4e3d039737ed3703b2482c1e2b396e8fbe
           envFrom:
             - secretRef:
                 name: vpn-credentials
@@ -51,7 +51,7 @@ spec:
               memory: 256Mi
         # qBittorrent
         - name: qbittorrent
-          image: linuxserver/qbittorrent:latest
+          image: linuxserver/qbittorrent:latest@sha256:97333cc1ccf903e0bbcd8eb67e3332e4970e9c1ecabe145e499e9c0847ebcaed
           ports:
             - containerPort: 8080
               protocol: TCP
