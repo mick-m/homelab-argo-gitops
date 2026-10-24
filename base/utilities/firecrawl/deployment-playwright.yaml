@@ -26,7 +26,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: playwright
-          image: ghcr.io/firecrawl/playwright-service:latest
+          image: ghcr.io/firecrawl/playwright-service:latest@sha256:6b54a9733fe6863c2dc225bf8e284db996ef59f6efd5d1e760f0664c09c1f856
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
