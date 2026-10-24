@@ -22,7 +22,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: netalertx
-          image: jokobsk/netalertx:latest
+          image: jokobsk/netalertx:latest@sha256:df3fd09ac057c944d669b7fd819652ed87f0abae8e30e0cc24260ac34ebabb39
           ports:
             - containerPort: 20211
               protocol: TCP
