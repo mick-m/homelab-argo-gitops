@@ -3,5 +3,4 @@ kind: Kustomization
 resources:
   - plex
   - tautulli
-  - tunarr
   - metube
