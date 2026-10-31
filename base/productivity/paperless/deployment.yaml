@@ -32,7 +32,7 @@ spec:
               cpu: 200m
               memory: 128Mi
         - name: paperless
-          image: ghcr.io/paperless-ngx/paperless-ngx:latest
+          image: ghcr.io/paperless-ngx/paperless-ngx:3.4.1
           ports:
             - containerPort: 8000
               protocol: TCP

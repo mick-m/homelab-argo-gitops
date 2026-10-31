@@ -28,7 +28,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: postgres
-          image: ghcr.io/firecrawl/nuq-postgres:latest
+          image: ghcr.io/firecrawl/nuq-postgres:latest@sha256:d719b36160eac2fcbe16dc7e7360ddb9c82c40ea5da183d07bf4a755c6a0b2ae
           ports:
             - containerPort: 5432
               protocol: TCP
