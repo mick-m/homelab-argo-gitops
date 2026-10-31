@@ -20,7 +20,7 @@ spec:
       enableServiceLinks: false
       initContainers:
         - name: wait-for-db
-          image: busybox:latest
+          image: busybox:latest@sha256:a46257e06c82ad85242d0d38077d0a52d9896389ca60a1a59d3463db586e5fa4
           command:
             - sh
             - -c
@@ -29,7 +29,7 @@ spec:
               until nc -z guacamole-db 5432; do sleep 2; done
               echo "PostgreSQL is ready"
         - name: init-schema
-          image: guacamole/guacamole:latest
+          image: guacamole/guacamole:latest@sha256:0b795bbc9cd95799d17ca4c781a33792039db332631cf8759fd0f5a94c7e55d2
           command:
             - sh
             - -c
@@ -51,7 +51,7 @@ spec:
               mountPath: /schema
       containers:
         - name: guacd
-          image: guacamole/guacd:latest
+          image: guacamole/guacd:latest@sha256:10a151080f31c5a88c52a198e2dfb5afb1657374e649c393ac690b35f4eebc62
           ports:
             - containerPort: 4822
               protocol: TCP
@@ -63,7 +63,7 @@ spec:
               cpu: "1"
               memory: 512Mi
         - name: guacamole
-          image: guacamole/guacamole:latest
+          image: guacamole/guacamole:latest@sha256:0b795bbc9cd95799d17ca4c781a33792039db332631cf8759fd0f5a94c7e55d2
           ports:
             - containerPort: 8080
               protocol: TCP
