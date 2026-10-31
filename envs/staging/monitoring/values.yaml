@@ -96,13 +96,16 @@ kubeStateMetrics:
   enabled: true
 
 kube-state-metrics:
+  # 50m CPU throttled KSM so hard during its initial list of every resource
+  # type that it missed its liveness probe and crash-looped (~540 restarts),
+  # which also wedged every staging-monitoring sync on its health check.
   resources:
     requests:
-      cpu: 10m
-      memory: 32Mi
-    limits:
-      cpu: 50m
+      cpu: 25m
       memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 192Mi
 
 nodeExporter:
   enabled: true
