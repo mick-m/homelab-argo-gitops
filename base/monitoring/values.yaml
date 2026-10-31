@@ -2,7 +2,85 @@
 # Chart: prometheus-community/kube-prometheus-stack
 
 alertmanager:
-  enabled: false
+  enabled: true
+  alertmanagerSpec:
+    # Mounted at /etc/alertmanager/secrets/pushover-credentials/{token,user-key}
+    # SealedSecret: envs/prod/monitoring/sealed-secrets/pushover-credentials-sealed.yaml
+    secrets:
+      - pushover-credentials
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      receiver: pushover
+      group_by: [alertname, namespace]
+      group_wait: 30s
+      group_interval: 5m
+      # Warnings re-notify twice a day while still firing
+      repeat_interval: 12h
+      routes:
+        # Watchdog is an always-firing heartbeat; InfoInhibitor only suppresses info alerts
+        - receiver: "null"
+          matchers:
+            - alertname =~ "Watchdog|InfoInhibitor"
+        - receiver: "null"
+          matchers:
+            - severity = "info"
+        - receiver: pushover-critical
+          matchers:
+            - severity = "critical"
+          group_wait: 10s
+          repeat_interval: 1h
+    inhibit_rules:
+      # A critical alert silences the matching warning (e.g. disk 90% hides disk 80%)
+      - source_matchers: [severity = "critical"]
+        target_matchers: [severity =~ "warning|info"]
+        equal: [namespace, alertname]
+      - source_matchers: [severity = "warning"]
+        target_matchers: [severity = "info"]
+        equal: [namespace, alertname]
+      - source_matchers: [alertname = "InfoInhibitor"]
+        target_matchers: [severity = "info"]
+        equal: [namespace]
+    receivers:
+      - name: "null"
+      - name: pushover
+        pushover_configs:
+          - token_file: /etc/alertmanager/secrets/pushover-credentials/token
+            user_key_file: /etc/alertmanager/secrets/pushover-credentials/user-key
+            priority: '{{ if eq .Status "firing" }}0{{ else }}-1{{ end }}'
+            title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}'
+            message: '{{ range .Alerts }}{{ if .Annotations.summary }}{{ .Annotations.summary }}{{ else }}{{ .Annotations.description }}{{ end }}{{ "\n" }}{{ end }}'
+            url: https://grafana.sunnyside.home/alerting/list
+            url_title: Open in Grafana
+            send_resolved: true
+      - name: pushover-critical
+        pushover_configs:
+          - token_file: /etc/alertmanager/secrets/pushover-credentials/token
+            user_key_file: /etc/alertmanager/secrets/pushover-credentials/user-key
+            # 1 = high priority: bypasses the user's Pushover quiet hours
+            priority: '{{ if eq .Status "firing" }}1{{ else }}-1{{ end }}'
+            title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}'
+            message: '{{ range .Alerts }}{{ if .Annotations.summary }}{{ .Annotations.summary }}{{ else }}{{ .Annotations.description }}{{ end }}{{ "\n" }}{{ end }}'
+            url: https://grafana.sunnyside.home/alerting/list
+            url_title: Open in Grafana
+            send_resolved: true
 
 grafana:
   admin:
@@ -145,3 +223,15 @@ prometheus:
           resources:
             requests:
               storage: 20Gi
+
+# K3s runs the controller-manager, scheduler and proxy inside the k3s process
+# and uses an embedded datastore, so these can't be scraped separately. Left
+# enabled, their *Down alerts fire permanently (staging already disables them).
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
+kubeEtcd:
+  enabled: false
