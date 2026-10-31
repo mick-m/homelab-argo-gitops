@@ -25,11 +25,14 @@ spec:
         - sourceLabels: [__address__]
           targetLabel: __param_target
           replacement: "192.168.1.152"
+          action: replace
         - sourceLabels: [__param_target]
           targetLabel: instance
           replacement: "pve"
+          action: replace
         - targetLabel: __address__
           replacement: proxmox-exporter.monitoring.svc:9221
+          action: replace
     - port: metrics
       interval: 60s
       scrapeTimeout: 30s
@@ -43,11 +46,14 @@ spec:
         - sourceLabels: [__address__]
           targetLabel: __param_target
           replacement: "192.168.1.153"
+          action: replace
         - sourceLabels: [__param_target]
           targetLabel: instance
           replacement: "pve2"
+          action: replace
         - targetLabel: __address__
           replacement: proxmox-exporter.monitoring.svc:9221
+          action: replace
     - port: metrics
       interval: 60s
       scrapeTimeout: 30s
@@ -61,8 +67,11 @@ spec:
         - sourceLabels: [__address__]
           targetLabel: __param_target
           replacement: "192.168.1.219"
+          action: replace
         - sourceLabels: [__param_target]
           targetLabel: instance
           replacement: "pve3"
+          action: replace
         - targetLabel: __address__
           replacement: proxmox-exporter.monitoring.svc:9221
+          action: replace
