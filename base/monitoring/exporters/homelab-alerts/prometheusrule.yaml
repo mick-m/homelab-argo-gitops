@@ -1,0 +1,48 @@
+# Early warnings for the failure that took k3s-prod down on 2026-10-31: a month
+# of crash loops filled the node's disk, the kubelet started evicting pods, and
+# ~600 dead pods piled up. The chart's default rules only fire at <5% free
+# (NodeFilesystemAlmostOutOfSpace) — after the kubelet has already started
+# evicting at 95% used — so these fire well before that.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: homelab-alerts
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: homelab-alerts
+    app.kubernetes.io/part-of: homelab
+spec:
+  groups:
+    - name: homelab-node-disk
+      rules:
+        - alert: HomelabNodeDiskFilling
+          # job="node-exporter" = the cluster node itself, not the macOS exporter
+          expr: |
+            (1 - node_filesystem_avail_bytes{job="node-exporter",mountpoint="/",fstype!~"tmpfs|overlay|squashfs"}
+                 / node_filesystem_size_bytes{job="node-exporter",mountpoint="/",fstype!~"tmpfs|overlay|squashfs"}) > 0.80
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.instance }} root disk is {{ $value | humanizePercentage }} full"
+            description: "Root filesystem on {{ $labels.instance }} has been over 80% for an hour. The kubelet starts evicting pods at 95%. Check for crash-looping pods, dead pods and unused images."
+        - alert: HomelabNodeDiskCritical
+          expr: |
+            (1 - node_filesystem_avail_bytes{job="node-exporter",mountpoint="/",fstype!~"tmpfs|overlay|squashfs"}
+                 / node_filesystem_size_bytes{job="node-exporter",mountpoint="/",fstype!~"tmpfs|overlay|squashfs"}) > 0.90
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "{{ $labels.instance }} root disk is {{ $value | humanizePercentage }} full — evictions imminent"
+            description: "Root filesystem on {{ $labels.instance }} is over 90%. At 95% the kubelet evicts pods and blocks scheduling."
+    - name: homelab-pods
+      rules:
+        - alert: HomelabFailedPodsPilingUp
+          expr: sum(kube_pod_status_phase{phase="Failed"}) > 25
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $value }} failed/evicted pods in the cluster"
+            description: "Terminated pods are accumulating, usually a sign of evictions (disk or memory pressure) or a crash-looping workload being replaced over and over. kubectl get pods -A --field-selector=status.phase=Failed"
