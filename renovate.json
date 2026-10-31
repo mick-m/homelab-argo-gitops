@@ -49,13 +49,18 @@
       "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(?<build>\\d+)-[0-9a-f]+-ls(?<revision>\\d+)$"
     },
     {
+      "description": "linuxserver tautulli tags: v2.18.2-ls250.",
+      "matchPackageNames": ["linuxserver/tautulli"],
+      "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-ls(?<build>\\d+)$"
+    },
+    {
       "description": "SearXNG tags are date + commit (2026.10.30-ffa88e3ba).",
       "matchPackageNames": ["searxng/searxng"],
       "versioning": "regex:^(?<major>\\d{4})\\.(?<minor>\\d+)\\.(?<patch>\\d+)-[0-9a-f]+$"
     },
     {
       "description": "Apps that migrate their own database on upgrade: never auto-merge, not even patches or digests (Open WebUI tracks :main, so every update is a digest bump).",
-      "matchPackageNames": ["ghcr.io/paperless-ngx/paperless-ngx", "ghcr.io/mealie-recipes/mealie", "freshrss/freshrss", "ghcr.io/open-webui/open-webui"],
+      "matchPackageNames": ["ghcr.io/paperless-ngx/paperless-ngx", "ghcr.io/mealie-recipes/mealie", "freshrss/freshrss", "ghcr.io/open-webui/open-webui", "louislam/uptime-kuma", "jokobsk/netalertx", "guacamole/guacamole"],
       "automerge": false
     },
     {
