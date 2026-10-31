@@ -138,6 +138,9 @@ prometheus:
     # Allow Prometheus to discover all ServiceMonitors in the cluster,
     # not just those matching the Helm release label.
     serviceMonitorSelectorNilUsesHelmValues: false
+    # Same for PrometheusRules: load every rule in the cluster, not only those
+    # labelled with this Helm release (cert-manager-alerts was never picked up).
+    ruleSelectorNilUsesHelmValues: false
     retention: 6h
     resources:
       requests:
