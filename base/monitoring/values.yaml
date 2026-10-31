@@ -161,16 +161,6 @@ grafana:
         gnetId: 10347
         revision: 5
         datasource: Prometheus
-      # Exportarr / arr stack dashboard
-      exportarr:
-        gnetId: 12896
-        revision: 1
-        datasource: Prometheus
-      # qBittorrent dashboard
-      qbittorrent:
-        gnetId: 15116
-        revision: 1
-        datasource: Prometheus
       # Node Exporter Mac OSX dashboard
       node-exporter-macos:
         gnetId: 15797

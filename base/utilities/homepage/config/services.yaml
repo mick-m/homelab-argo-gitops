@@ -84,10 +84,6 @@
         href: https://speedtest.sunnyside.home
         icon: openspeedtest.png
         description: Network speed test
-    - qBittorrent:
-        href: https://qbit.sunnyside.home
-        icon: qbittorrent.png
-        description: Torrent client
 
 - Media:
     - Plex:
@@ -98,30 +94,10 @@
         href: https://tautulli.sunnyside.home
         icon: tautulli.png
         description: Plex monitoring
-    - Seerr:
-        href: https://seerr.sunnyside.home
-        icon: seerr.png
-        description: Media request manager
     - Tunarr:
         href: https://tunarr.sunnyside.home
         icon: mdi-television-classic
         description: Custom TV channels
-    - Sonarr:
-        href: https://sonarr.sunnyside.home
-        icon: sonarr.png
-        description: TV show collection manager
-    - Radarr:
-        href: https://radarr.sunnyside.home
-        icon: radarr.png
-        description: Movie collection manager
-    - Bazarr:
-        href: https://bazarr.sunnyside.home
-        icon: bazarr.png
-        description: Subtitle manager
-    - Prowlarr:
-        href: https://prowlarr.sunnyside.home
-        icon: prowlarr.png
-        description: Indexer manager
     - MeTube:
         href: https://metube.sunnyside.home
         icon: metube.png

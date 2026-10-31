@@ -4,8 +4,6 @@ resources:
   - unpoller
   - proxmox-exporter
   - truenas-graphite
-  - exportarr
-  - qbittorrent-exporter
   - macos-node-exporter
   - nextcloud-exporter
   - cert-manager-alerts

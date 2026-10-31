@@ -74,14 +74,6 @@ grafana:
         gnetId: 10347
         revision: 5
         datasource: Prometheus
-      exportarr:
-        gnetId: 12896
-        revision: 1
-        datasource: Prometheus
-      qbittorrent:
-        gnetId: 15116
-        revision: 1
-        datasource: Prometheus
       node-exporter-macos:
         gnetId: 15797
         revision: 1

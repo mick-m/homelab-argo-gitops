@@ -65,7 +65,7 @@ hostname, and two clusters fight over one cert/DNS name.
 
 ## Manifest conventions
 
-Copy [base/media/sonarr/](base/media/sonarr/) as the reference shape.
+Copy [base/productivity/mealie/](base/productivity/mealie/) as the reference shape.
 
 - Every object sets `metadata.namespace` explicitly and carries
   `app.kubernetes.io/name: <service>` + `app.kubernetes.io/part-of: homelab`.
@@ -77,7 +77,7 @@ Copy [base/media/sonarr/](base/media/sonarr/) as the reference shape.
 - `TZ: Europe/Dublin` everywhere; `PUID`/`PGID` `"1000"` on linuxserver images.
 - Resource requests *and* limits on every container — these are small nodes and
   staging has been OOM-killed before.
-- Liveness + readiness probes (tcpSocket is the norm for the *arr stack).
+- Liveness + readiness probes (tcpSocket is the norm).
 - Config PVCs: `storageClassName: nfs-client`, RWO, a few Gi. Bulk media is
   mounted as inline `nfs:` volumes from `192.168.1.202`, not PVCs.
 - Multi-workload apps get one file per Deployment in the same directory
