@@ -57,6 +57,15 @@ spec:
               value: Europe/Dublin
             - name: PAPERLESS_CONSUMER_POLLING
               value: "30"
+            # Required by recent Paperless releases (refuses to start without it).
+            # The Secret is created per cluster, out of band (not in git yet):
+            #   kubectl -n productivity create secret generic paperless-secret-key \
+            #     --from-literal=PAPERLESS_SECRET_KEY="$(python3 -c 'import secrets; print(secrets.token_urlsafe(64))')"
+            - name: PAPERLESS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-secret-key
+                  key: PAPERLESS_SECRET_KEY
           resources:
             requests:
               cpu: 100m

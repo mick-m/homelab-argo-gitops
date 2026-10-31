@@ -30,6 +30,13 @@
       "pinDigests": true
     },
     {
+      "description": "Nextcloud only supports upgrading one major version at a time and migrates its DB on every bump. Never auto-merge it, and raise one PR per major so 35 -> 36 -> 37 can't be skipped.",
+      "matchPackageNames": ["nextcloud"],
+      "matchDatasources": ["docker"],
+      "automerge": false,
+      "separateMultipleMajor": true
+    },
+    {
       "description": "Block major upgrades for stateful services (require manual DB migration)",
       "matchPackageNames": ["postgres", "redis"],
       "matchUpdateTypes": ["major"],
