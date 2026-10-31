@@ -28,7 +28,7 @@ spec:
             - name: PORT
               value: "9707"
             - name: URL
-              value: "http://sonarr.media.svc:8989"
+              value: "http://sonarr.media.svc"
             - name: APIKEY
               valueFrom:
                 secretKeyRef:
@@ -81,7 +81,7 @@ spec:
             - name: PORT
               value: "9708"
             - name: URL
-              value: "http://radarr.media.svc:7878"
+              value: "http://radarr.media.svc"
             - name: APIKEY
               valueFrom:
                 secretKeyRef:
@@ -134,7 +134,7 @@ spec:
             - name: PORT
               value: "9709"
             - name: URL
-              value: "http://prowlarr.media.svc:9696"
+              value: "http://prowlarr.media.svc"
             - name: APIKEY
               valueFrom:
                 secretKeyRef:
@@ -187,7 +187,7 @@ spec:
             - name: PORT
               value: "9710"
             - name: URL
-              value: "http://bazarr.media.svc:6767"
+              value: "http://bazarr.media.svc"
             - name: APIKEY
               valueFrom:
                 secretKeyRef:
