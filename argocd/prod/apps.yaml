@@ -58,7 +58,7 @@ spec:
     # Helm chart for kube-prometheus-stack
     - repoURL: https://prometheus-community.github.io/helm-charts
       chart: kube-prometheus-stack
-      targetRevision: "82.17.1"
+      targetRevision: "90.0.0"
       helm:
         skipCrds: true
         valueFiles:
