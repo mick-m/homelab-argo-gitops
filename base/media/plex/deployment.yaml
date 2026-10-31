@@ -8,6 +8,10 @@ metadata:
     app.kubernetes.io/part-of: homelab
 spec:
   replicas: 1
+  # hostNetwork binds 32400 on the node: a rolling update can't start the new pod
+  # while the old one holds the port, so stop the old pod first.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: plex
