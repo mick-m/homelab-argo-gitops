@@ -94,10 +94,6 @@
         href: https://staging-tautulli.sunnyside.home
         icon: tautulli.png
         description: Plex monitoring
-    - Tunarr:
-        href: https://staging-tunarr.sunnyside.home
-        icon: mdi-television-classic
-        description: Custom TV channels
     - MeTube:
         href: https://staging-metube.sunnyside.home
         icon: metube.png

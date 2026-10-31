@@ -34,20 +34,6 @@ patches:
 
   - target:
       kind: Ingress
-      name: tunarr
-    patch: |
-      - op: replace
-        path: /spec/rules/0/host
-        value: staging-tunarr.sunnyside.home
-      - op: replace
-        path: /spec/tls/0/hosts/0
-        value: staging-tunarr.sunnyside.home
-      - op: replace
-        path: /spec/tls/0/secretName
-        value: staging-tunarr-tls
-
-  - target:
-      kind: Ingress
       name: metube
     patch: |
       - op: replace
