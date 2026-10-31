@@ -23,7 +23,7 @@ spec:
         fsGroup: 0
       containers:
         - name: freshrss
-          image: freshrss/freshrss:latest
+          image: freshrss/freshrss:1.30.4
           ports:
             - containerPort: 80
               protocol: TCP
