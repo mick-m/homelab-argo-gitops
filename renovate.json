@@ -12,11 +12,12 @@
   },
   "packageRules": [
     {
-      "description": "Auto-merge patch updates for container images",
+      "description": "Auto-merge patch updates for container images. ignoreTests: this repo has no CI checks, and without it Renovate waits forever for statuses that never arrive (nothing auto-merged from April to October 2026).",
       "matchUpdateTypes": ["patch", "digest"],
       "matchDatasources": ["docker"],
       "automerge": true,
-      "automergeType": "pr"
+      "automergeType": "pr",
+      "ignoreTests": true
     },
     {
       "description": "Group all Helm chart updates",
