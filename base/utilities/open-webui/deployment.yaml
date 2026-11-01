@@ -30,6 +30,19 @@ spec:
               value: http://100.64.155.43:11434
             - name: WEBUI_AUTH
               value: "false"
+            # Web search + page fetching through the in-cluster Firecrawl
+            # (base/utilities/firecrawl, no auth, so no API key). Open WebUI
+            # appends /v2/search and /v2/scrape. These are PersistentConfig:
+            # they only apply while Admin > Settings > Web Search has never
+            # been saved; after that the values stored in its DB win.
+            - name: ENABLE_WEB_SEARCH
+              value: "true"
+            - name: WEB_SEARCH_ENGINE
+              value: firecrawl
+            - name: WEB_LOADER_ENGINE
+              value: firecrawl
+            - name: FIRECRAWL_API_BASE_URL
+              value: http://firecrawl-api.utilities.svc:3002
           resources:
             requests:
               cpu: 100m
