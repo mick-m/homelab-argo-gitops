@@ -83,6 +83,14 @@ alertmanager:
             send_resolved: true
 
 grafana:
+  env:
+    # Grafana 13.2 bundles Prometheus/Loki/etc. as plugins and, at startup, tries
+    # to auto-update them from grafana.com. The update deletes the bundled copy
+    # first, which fails in the locked-down (distroless) container, and the failed
+    # install unregisters the already-loaded plugin: the Prometheus datasource then
+    # has "no plugin definition" and every dashboard shows "No data".
+    # Keep the bundled versions; chart/image bumps update them.
+    GF_PLUGINS_PREINSTALL_AUTO_UPDATE: "false"
   admin:
     existingSecret: grafana-admin-credentials
     userKey: admin-user
