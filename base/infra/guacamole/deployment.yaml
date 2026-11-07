@@ -29,7 +29,7 @@ spec:
               until nc -z guacamole-db 5432; do sleep 2; done
               echo "PostgreSQL is ready"
         - name: init-schema
-          image: guacamole/guacamole:latest@sha256:0b795bbc9cd95799d17ca4c781a33792039db332631cf8759fd0f5a94c7e55d2
+          image: guacamole/guacamole:latest@sha256:7ed49c003098fdeeee22a6fc3f41ca2d11143dfc26eab26e59e3ff531cf3641f
           command:
             - sh
             - -c
@@ -63,7 +63,7 @@ spec:
               cpu: "1"
               memory: 512Mi
         - name: guacamole
-          image: guacamole/guacamole:latest@sha256:0b795bbc9cd95799d17ca4c781a33792039db332631cf8759fd0f5a94c7e55d2
+          image: guacamole/guacamole:latest@sha256:7ed49c003098fdeeee22a6fc3f41ca2d11143dfc26eab26e59e3ff531cf3641f
           ports:
             - containerPort: 8080
               protocol: TCP
