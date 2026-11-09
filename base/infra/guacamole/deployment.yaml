@@ -51,7 +51,7 @@ spec:
               mountPath: /schema
       containers:
         - name: guacd
-          image: guacamole/guacd:latest@sha256:4f7f1a76b68358335f75877cea9a78cf9df1361b20c08608e4ec44ba39fdb80c
+          image: guacamole/guacd:latest@sha256:ed47289dc3b2ef66dad5282f3cdf77c889a40faca31de42aec7a1ec6e0c69965
           ports:
             - containerPort: 4822
               protocol: TCP
