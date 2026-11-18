@@ -21,6 +21,9 @@ spec:
         app.kubernetes.io/name: netalertx
         app.kubernetes.io/part-of: homelab
     spec:
+      # hostNetwork: NetAlertX scans by ARP from the node, so it only sees the
+      # Default VLAN (192.168.1.0/24). Devices on Trusted, IoT, Media and Protect
+      # are not visible to it. See homelab-ansible-bootstrap/docs/network.md.
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       enableServiceLinks: false

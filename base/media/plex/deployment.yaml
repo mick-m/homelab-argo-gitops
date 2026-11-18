@@ -21,6 +21,11 @@ spec:
         app.kubernetes.io/name: plex
         app.kubernetes.io/part-of: homelab
     spec:
+      # hostNetwork: Plex listens on the node's own IP (k3s-prod, 192.168.1.173:32400).
+      # The UniFi "Allow Media to Plex" firewall rule targets exactly that address,
+      # so the Shields (Media VLAN) can only reach Plex while it runs on k3s-prod.
+      # Moving it to another node or IP needs that rule updated. See
+      # homelab-ansible-bootstrap/docs/network.md.
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       enableServiceLinks: false
