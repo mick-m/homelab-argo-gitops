@@ -42,6 +42,25 @@ alertmanager:
         - receiver: "null"
           matchers:
             - severity = "info"
+        # The Mac is a workstation, not infrastructure. macOS wakes it briefly
+        # every ~15 min overnight (Power Nap / dark wake), so the target flaps
+        # instead of going cleanly down: 18-19 Nov produced 24 separate firing
+        # episodes between 19:57 and 07:59, and with send_resolved that is ~48
+        # Pushover messages for a machine that was simply asleep.
+        #
+        # This suppresses the job unconditionally, not just overnight — a failed
+        # scrape cannot tell "asleep" from "node_exporter broken", and the Mac
+        # naps during the day too. Scraping continues, so the macOS dashboard
+        # (gnetId 15797) still works; it just has gaps while the Mac is off.
+        # For genuine host-reachability checks use Uptime Kuma in `infra`.
+        #
+        # Scoped to this one job on purpose. TargetDown is the right alert for
+        # every other exporter — those are in-cluster pods scraping always-on
+        # infrastructure, where a dropped target does mean something is broken.
+        - receiver: "null"
+          matchers:
+            - alertname = "TargetDown"
+            - job = "macos-node-exporter"
         - receiver: pushover-critical
           matchers:
             - severity = "critical"
