@@ -49,12 +49,24 @@ spec:
                   key: unifi-pass
             - name: UP_UNIFI_DEFAULT_VERIFY_SSL
               value: "false"
+          # unpoller's work is bursty: it polls the UniFi controller, does a short
+          # burst of work, then idles. Measured over 7 days on prod it uses 2.4m
+          # median / 2.9m p95 / 3.5m peak CPU — yet it was throttled 28% of its
+          # CFS periods, because a 100m limit only grants 10ms of CPU per 100ms
+          # period and a single poll wants more than that contiguously.
+          #
+          # So the old limit was never about capacity (it had 30x headroom on
+          # average) — it was chopping up short bursts. The limit here is a
+          # runaway guardrail, not a ration: 500m is ~140x measured peak usage
+          # and costs nothing, since limits cap rather than reserve and the
+          # request stays at 10m. Memory is untouched: peak working set is 22MB
+          # against a 128Mi limit.
           resources:
             requests:
               cpu: 10m
               memory: 64Mi
             limits:
-              cpu: 100m
+              cpu: 500m
               memory: 128Mi
           livenessProbe:
             httpGet:
