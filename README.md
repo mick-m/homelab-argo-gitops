@@ -18,7 +18,7 @@ homelab-argo-gitops/
 │   ├── utilities/                 # homepage, it-tools, open-webui, firecrawl, etc.
 │   ├── media/                     # plex, tautulli, metube
 │   ├── productivity/              # freshrss, mealie, nextcloud, paperless, searxng
-│   ├── infra/                     # guacamole, uptime-kuma, netalertx
+│   ├── infra/                     # guacamole, uptime-kuma
 │   └── monitoring/                # kube-prometheus-stack (Helm values)
 ├── envs/
 │   ├── staging/                   # Overlay per namespace: staging- hostname patches
@@ -59,7 +59,7 @@ Prod tracks the `prod` branch but has **no** `automated` sync policy. Fast-forwa
 | `utilities` | homepage, it-tools, open-webui, openspeedtest, stirling-pdf, firecrawl |
 | `media` | plex, tautulli, metube |
 | `productivity` | freshrss, mealie, searxng, nextcloud (+db), paperless (+db) |
-| `infra` | guacamole (+db), uptime-kuma, netalertx |
+| `infra` | guacamole (+db), uptime-kuma |
 | `monitoring` | kube-prometheus-stack (Helm), graphite-exporter (TrueNAS metrics) |
 
 ## Monitoring

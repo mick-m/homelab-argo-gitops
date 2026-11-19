@@ -3,4 +3,3 @@ kind: Kustomization
 resources:
   - guacamole
   - uptime-kuma
-  - netalertx

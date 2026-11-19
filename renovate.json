@@ -60,7 +60,7 @@
     },
     {
       "description": "Apps that migrate their own database on upgrade: never auto-merge, not even patches or digests (Open WebUI tracks :main, so every update is a digest bump).",
-      "matchPackageNames": ["ghcr.io/paperless-ngx/paperless-ngx", "ghcr.io/mealie-recipes/mealie", "freshrss/freshrss", "ghcr.io/open-webui/open-webui", "louislam/uptime-kuma", "jokobsk/netalertx", "guacamole/guacamole"],
+      "matchPackageNames": ["ghcr.io/paperless-ngx/paperless-ngx", "ghcr.io/mealie-recipes/mealie", "freshrss/freshrss", "ghcr.io/open-webui/open-webui", "louislam/uptime-kuma", "guacamole/guacamole"],
       "automerge": false
     },
     {
