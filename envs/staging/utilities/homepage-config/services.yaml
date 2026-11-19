@@ -36,10 +36,6 @@
         href: https://staging-uptime.sunnyside.home
         icon: uptime-kuma.png
         description: Service uptime monitoring
-    - NetAlertX:
-        href: https://staging-netalertx.sunnyside.home
-        icon: mdi-lan
-        description: Network device monitoring
 
 - Productivity:
     - Nextcloud:
