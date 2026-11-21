@@ -26,8 +26,17 @@ spec:
           env:
             - name: TZ
               value: Europe/Dublin
-            - name: OLLAMA_BASE_URL
-              value: http://100.64.155.43:11434
+            # Models are served by LM Studio on Mick's MacBook Pro 14" M1 Max
+            # (OpenAI-compatible API, port 1234, "Serve on Local Network" on),
+            # reached over Tailscale because Internal -> Trusted is blocked on the
+            # LAN. LM Studio requires an API token. It is NOT set here: it lives
+            # only in Open WebUI's DB (Admin > Settings > Connections). These are
+            # PersistentConfig, so once that page has been saved the DB values win.
+            # On a fresh install (empty DB), enter the token there by hand.
+            - name: ENABLE_OLLAMA_API
+              value: "false"
+            - name: OPENAI_API_BASE_URL
+              value: http://100.80.57.84:1234/v1
             - name: WEBUI_AUTH
               value: "false"
             # Web search + page fetching through the in-cluster Firecrawl
