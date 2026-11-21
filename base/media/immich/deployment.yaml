@@ -1,8 +1,10 @@
 # Immich server (web UI + API + background jobs). Prod storage, all on the NAS:
 #   /data        -> 192.168.1.202:/mnt/volume1/immich  (read-write, prod only;
 #                   staging patches this to its own PVC)
-#   /mnt/photos  -> 192.168.1.202:/mnt/volume1/photos  (read-only; add it in
-#                   Administration > External Libraries with import path /mnt/photos)
+#   /mnt/photos  -> 192.168.1.202:/mnt/volume1/photos  (read-only)
+#   /mnt/frame_art -> 192.168.1.202:/mnt/volume1/photos/frame_art (read-only; a
+#                   separate dataset, so the photos export doesn't include it)
+# Add both as import paths in Administration > External Libraries.
 # Server, ML and DB must stay on the same Immich release.
 apiVersion: apps/v1
 kind: Deployment
@@ -75,6 +77,9 @@ spec:
             - name: photos
               mountPath: /mnt/photos
               readOnly: true
+            - name: frame-art
+              mountPath: /mnt/frame_art
+              readOnly: true
       volumes:
         - name: library
           nfs:
@@ -84,4 +89,9 @@ spec:
           nfs:
             server: 192.168.1.202
             path: /mnt/volume1/photos
+            readOnly: true
+        - name: frame-art
+          nfs:
+            server: 192.168.1.202
+            path: /mnt/volume1/photos/frame_art
             readOnly: true
