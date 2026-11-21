@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vane
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: vane
+    app.kubernetes.io/part-of: homelab
+  annotations:
+    cert-manager.io/cluster-issuer: stepca-acme
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: vane.sunnyside.home
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vane
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - vane.sunnyside.home
+      secretName: vane-tls

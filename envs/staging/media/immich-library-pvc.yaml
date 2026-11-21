@@ -1,0 +1,19 @@
+# Staging-only: Immich's writable library. Prod writes to the NAS export
+# /mnt/volume1/immich, which is exported to k3s-prod only; staging gets its own
+# small dynamic volume (lands under /mnt/volume1/k3s-staging) and still reads
+# /mnt/volume1/photos read-only.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: immich-library
+  namespace: media
+  labels:
+    app.kubernetes.io/name: immich
+    app.kubernetes.io/part-of: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-client
+  resources:
+    requests:
+      storage: 20Gi

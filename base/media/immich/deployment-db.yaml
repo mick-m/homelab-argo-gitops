@@ -1,0 +1,71 @@
+# Immich's own Postgres build with the VectorChord extension (plain postgres
+# will not work). Data stays on local disk: Immich does not support the DB on
+# a network share. Not covered by NAS backups.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: immich-db
+  namespace: media
+  labels:
+    app.kubernetes.io/name: immich-db
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: immich-db
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: immich-db
+        app.kubernetes.io/part-of: homelab
+    spec:
+      containers:
+        - name: postgres
+          image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          env:
+            - name: POSTGRES_DB
+              value: immich
+            - name: POSTGRES_USER
+              value: immich
+            - name: POSTGRES_PASSWORD
+              value: immichk3s2026
+            - name: POSTGRES_INITDB_ARGS
+              value: --data-checksums
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+          volumeMounts:
+            - name: db-data
+              mountPath: /var/lib/postgresql/data
+            - name: shm
+              mountPath: /dev/shm
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: immich-db-data
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 128Mi
