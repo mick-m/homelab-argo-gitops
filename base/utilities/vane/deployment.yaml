@@ -1,0 +1,64 @@
+# Vane (formerly Perplexica): AI answer engine. The slim image has no bundled
+# SearXNG and uses the in-cluster one, which must have the JSON output format
+# enabled (search.formats in its settings.yml, kept on searxng-data).
+# The LLM is LM Studio on Mick's MacBook Pro (http://100.80.57.84:1234/v1, via
+# Tailscale), configured in Vane's setup screen with the LM Studio token; that
+# config lives in /home/vane/data, not in this repo.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vane
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: vane
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vane
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: vane
+        app.kubernetes.io/part-of: homelab
+    spec:
+      containers:
+        - name: vane
+          image: docker.io/itzcrazykns1337/vane:slim-latest
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          env:
+            - name: TZ
+              value: Europe/Dublin
+            - name: SEARXNG_API_URL
+              value: http://searxng.productivity.svc
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          livenessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+          volumeMounts:
+            - name: data
+              mountPath: /home/vane/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: vane-data

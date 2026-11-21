@@ -62,6 +62,10 @@
         href: https://staging-webui.sunnyside.home
         icon: open-webui.png
         description: AI chat interface (LM Studio)
+    - Vane:
+        href: https://staging-vane.sunnyside.home
+        icon: mdi-magnify-scan
+        description: AI answer engine (formerly Perplexica)
     - Firecrawl:
         href: https://staging-firecrawl.sunnyside.home
         icon: mdi-fire
@@ -94,3 +98,7 @@
         href: https://staging-metube.sunnyside.home
         icon: metube.png
         description: YouTube downloader
+    - Immich:
+        href: https://staging-immich.sunnyside.home
+        icon: immich.png
+        description: Photo library

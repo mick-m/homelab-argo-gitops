@@ -106,3 +106,17 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/env/1/value
         value: staging-home.sunnyside.home
+
+  - target:
+      kind: Ingress
+      name: vane
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-vane.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-vane.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-vane-tls
