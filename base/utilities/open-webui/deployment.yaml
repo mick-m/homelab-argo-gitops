@@ -26,8 +26,18 @@ spec:
           env:
             - name: TZ
               value: Europe/Dublin
-            - name: OLLAMA_BASE_URL
-              value: http://100.64.155.43:11434
+            # Models are served by LM Studio on Mick's MacBook Pro 14" M1 Max
+            # (OpenAI-compatible API, port 1234, "Serve on Local Network" on),
+            # reached over Tailscale because Internal -> Trusted is blocked on the
+            # LAN. The key is a placeholder; LM Studio doesn't check it. These are
+            # PersistentConfig: once Admin > Settings > Connections has been saved,
+            # the values stored in Open WebUI's DB win over these.
+            - name: ENABLE_OLLAMA_API
+              value: "false"
+            - name: OPENAI_API_BASE_URL
+              value: http://100.80.57.84:1234/v1
+            - name: OPENAI_API_KEY
+              value: lm-studio
             - name: WEBUI_AUTH
               value: "false"
             # Web search + page fetching through the in-cluster Firecrawl

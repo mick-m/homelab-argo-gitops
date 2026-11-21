@@ -61,7 +61,7 @@
     - Open WebUI:
         href: https://staging-webui.sunnyside.home
         icon: open-webui.png
-        description: AI chat interface (Ollama)
+        description: AI chat interface (LM Studio)
     - Firecrawl:
         href: https://staging-firecrawl.sunnyside.home
         icon: mdi-fire
