@@ -21,6 +21,10 @@ spec:
         app.kubernetes.io/name: immich-ml
         app.kubernetes.io/part-of: homelab
     spec:
+      # A Service named "immich" makes Kubernetes inject IMMICH_PORT=tcp://...
+      # into every pod in the namespace, which Immich reads as its own port and
+      # crashes on. DNS is used for discovery, so the injected vars aren't needed.
+      enableServiceLinks: false
       containers:
         - name: immich-ml
           image: ghcr.io/immich-app/immich-machine-learning:v3.3.0
