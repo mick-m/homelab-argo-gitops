@@ -53,16 +53,21 @@ engines:
   # Off upstream, but bing news/images are 100% reliable from here: second web source.
   - name: bing
     disabled: false
-  # 85% reliable, most results: favour it.
+  # Off since Brave's 2026-11-11 change: result links are now encrypted
+  # search.brave.com/go/v1#... redirects that only a browser can decrypt, so
+  # SearXNG returns them as broken "http:///go/v1/..." URLs. Re-check after
+  # upstream SearXNG updates (was weight 1.5, our best web source).
   - name: brave
-    weight: 1.5
-    timeout: 4.0
+    disabled: true
   # 100% reliable.
   - name: wikipedia
     weight: 1.5
   # ~55% CAPTCHA on 2026.10.30; upstream's fix (PR #6946) arrives with a newer image.
   - name: duckduckgo
     weight: 1
+  # Adds unrelated stories to news results (old articles matching one word).
+  - name: wikinews
+    disabled: true
 
 # Boost Irish and tech sources, like Google News does for local outlets.
 # Matches whole hostnames (no per-section boosts, so BBC NI and Guardian
