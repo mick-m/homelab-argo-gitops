@@ -45,6 +45,14 @@ spec:
               value: Europe/Dublin
             - name: SEARXNG_BASE_URL
               value: https://search.sunnyside.home
+            # Created by hand in each cluster, not in git:
+            #   kubectl -n productivity create secret generic searxng-secret \
+            #     --from-literal=secret-key="$(openssl rand -hex 32)"
+            - name: SEARXNG_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: searxng-secret
+                  key: secret-key
           resources:
             requests:
               cpu: 50m
@@ -67,7 +75,16 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /etc/searxng
+            # settings.yml from git overrides the copy on the PVC; the PVC keeps
+            # the other files the image writes there (uwsgi.ini etc.).
+            - name: config
+              mountPath: /etc/searxng/settings.yml
+              subPath: settings.yml
+              readOnly: true
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: searxng-data
+        - name: config
+          configMap:
+            name: searxng-config
