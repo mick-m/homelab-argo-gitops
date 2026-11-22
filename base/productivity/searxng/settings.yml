@@ -67,8 +67,7 @@ engines:
 # Boost Irish and tech sources, like Google News does for local outlets.
 # Matches whole hostnames (no per-section boosts, so BBC NI and Guardian
 # Ireland are left out). Kept in step with ~/workspace/daily_aggregator/feeds.txt.
-# Irish Examiner left out on purpose: its paywall leaves stubs (aggregator
-# dropped it 2026-09-20). The hostnames plugin is on by default.
+# The hostnames plugin is on by default.
 hostnames:
   high_priority:
     # Irish
@@ -79,10 +78,16 @@ hostnames:
     - '(.*\.)?newstalk\.com$'
     - '(.*\.)?joe\.ie$'
     - '(.*\.)?irishmirror\.ie$'
+    - '(.*\.)?thesun\.ie$'
+    - '(.*\.)?irishexaminer\.com$'
     - '(.*\.)?independent\.ie$'
     - '(.*\.)?businesspost\.ie$'
     - '(.*\.)?siliconrepublic\.com$'
     - '.*\.ie$'
+    # Paywalled, but Mick subscribes (Vane fetches without a login, so it
+    # may only see teasers from these)
+    - '(.*\.)?ft\.com$'
+    - '(.*\.)?nytimes\.com$'
     # Tech
     - '(.*\.)?arstechnica\.com$'
     - '(.*\.)?theverge\.com$'
