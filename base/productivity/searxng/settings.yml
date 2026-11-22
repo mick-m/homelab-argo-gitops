@@ -1,0 +1,65 @@
+# SearXNG settings, rendered into a ConfigMap (see kustomization.yaml) and mounted
+# over /etc/searxng/settings.yml in both clusters. Only overrides live here:
+# everything else comes from the defaults shipped in the image.
+#
+# The secret key is NOT here: it comes from the searxng-secret Secret via
+# SEARXNG_SECRET (created by hand in each cluster, not in git).
+#
+# Engine choices are based on this instance's own /stats and /stats/errors
+# (prod, 2026-11-22, residential IP). Re-check those before changing them:
+#   kubectl -n productivity exec deploy/searxng -c searxng -- wget -qO- http://127.0.0.1:8080/stats/errors
+use_default_settings: true
+
+general:
+  instance_name: "Sunnyside Search"
+
+search:
+  # Vane and Open WebUI use the JSON API.
+  formats:
+    - html
+    - json
+  # Off: autocomplete would send every keystroke to the provider.
+  autocomplete: ""
+  default_lang: "en-IE"
+  suspended_times:
+    SearxEngineTooManyRequests: 600
+
+server:
+  # Private instance: the limiter is for public ones and would throttle Vane.
+  limiter: false
+  public_instance: false
+  # POST keeps search terms out of URLs, browser history and logs.
+  method: "POST"
+  # Result images load through SearXNG, not directly from each site.
+  image_proxy: true
+
+ui:
+  query_in_title: false
+
+outgoing:
+  request_timeout: 4.0
+
+engines:
+  # 100% HTTP 403 from this IP.
+  - name: google
+    disabled: true
+  - name: google images
+    disabled: true
+  - name: wikidata
+    disabled: true
+  # 100% CAPTCHA from this IP.
+  - name: startpage
+    disabled: true
+  # Off upstream, but bing news/images are 100% reliable from here: second web source.
+  - name: bing
+    disabled: false
+  # 85% reliable, most results: favour it.
+  - name: brave
+    weight: 1.5
+    timeout: 4.0
+  # 100% reliable.
+  - name: wikipedia
+    weight: 1.5
+  # ~55% CAPTCHA on 2026.10.30; upstream's fix (PR #6946) arrives with a newer image.
+  - name: duckduckgo
+    weight: 1
