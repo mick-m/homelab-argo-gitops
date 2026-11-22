@@ -63,3 +63,34 @@ engines:
   # ~55% CAPTCHA on 2026.10.30; upstream's fix (PR #6946) arrives with a newer image.
   - name: duckduckgo
     weight: 1
+
+# Boost Irish and tech sources, like Google News does for local outlets.
+# Matches whole hostnames (no per-section boosts, so BBC NI and Guardian
+# Ireland are left out). Kept in step with ~/workspace/daily_aggregator/feeds.txt.
+# Irish Examiner left out on purpose: its paywall leaves stubs (aggregator
+# dropped it 2026-09-20). The hostnames plugin is on by default.
+hostnames:
+  high_priority:
+    # Irish
+    - '(.*\.)?rte\.ie$'
+    - '(.*\.)?irishtimes\.com$'
+    - '(.*\.)?thejournal\.ie$'
+    - '(.*\.)?breakingnews\.ie$'
+    - '(.*\.)?newstalk\.com$'
+    - '(.*\.)?joe\.ie$'
+    - '(.*\.)?irishmirror\.ie$'
+    - '(.*\.)?independent\.ie$'
+    - '(.*\.)?businesspost\.ie$'
+    - '(.*\.)?siliconrepublic\.com$'
+    - '.*\.ie$'
+    # Tech
+    - '(.*\.)?arstechnica\.com$'
+    - '(.*\.)?theverge\.com$'
+    - '(.*\.)?techcrunch\.com$'
+    - '(.*\.)?theregister\.com$'
+    - '(.*\.)?simonwillison\.net$'
+    - '(.*\.)?bleepingcomputer\.com$'
+    - '(.*\.)?infoworld\.com$'
+    - '(.*\.)?engadget\.com$'
+    - '(.*\.)?wired\.com$'
+    - '^news\.ycombinator\.com$'
