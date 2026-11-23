@@ -54,6 +54,10 @@
         href: https://mealie.sunnyside.home
         icon: mealie.png
         description: Recipe manager
+    - Today:
+        href: https://today.sunnyside.home
+        icon: mdi-newspaper-variant-outline
+        description: Daily news brief
     - SearXNG:
         href: https://search.sunnyside.home
         icon: searxng.png

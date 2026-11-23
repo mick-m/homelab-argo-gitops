@@ -1,0 +1,19 @@
+# The brief's output (7 days of day folders, ~450-850 MB). local-path on purpose,
+# not nfs-client: node-local and disposable. Losing it loses only history; the
+# next 07:05 run rebuilds today. Shared by the CronJob (writes) and the nginx
+# Deployment (reads); RWO is fine because both clusters are single-node.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: today-data
+  namespace: productivity
+  labels:
+    app.kubernetes.io/name: today
+    app.kubernetes.io/part-of: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 2Gi
