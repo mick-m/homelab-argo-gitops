@@ -1,0 +1,57 @@
+# Serves the brief (out/: day list at /, each day at /YYYY-MM-DD/) read-only from
+# the volume the CronJob writes. Static files only: the page makes no requests
+# except to this server (daily_aggregator AGENTS.md §2 rule 1).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: today
+  namespace: productivity
+  labels:
+    app.kubernetes.io/name: today
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: today
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: today
+        app.kubernetes.io/part-of: homelab
+        app.kubernetes.io/component: web
+    spec:
+      containers:
+        - name: nginx
+          image: nginxinc/nginx-unprivileged:stable-alpine
+          ports:
+            - containerPort: 8080
+          env:
+            - name: TZ
+              value: Europe/Dublin
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 500m
+              memory: 128Mi
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          volumeMounts:
+            - name: out
+              mountPath: /usr/share/nginx/html
+              readOnly: true
+      volumes:
+        - name: out
+          persistentVolumeClaim:
+            claimName: today-data

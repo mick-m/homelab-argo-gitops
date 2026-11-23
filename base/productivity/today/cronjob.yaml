@@ -1,0 +1,76 @@
+# The daily scrape (repo: github.com/mick-m/daily_aggregator, private). The image
+# runs scripts/container_run -> scripts/daily_aggregator: probe.py for today,
+# prune to 7 days, rewrite the day list. ~9 minutes.
+#
+# Secrets, created by hand in each cluster (never in git):
+#   today-finnhub  FINNHUB_API_KEY  WDAY price for the Today strip (optional:
+#                                   without it that tile is just left out)
+#   ghcr-pull      docker-registry  classic GitHub token, read:packages only
+# Staging suspends this (envs/staging/productivity): publishers should not be
+# scraped twice a day. Test there with:
+#   kubectl -n productivity create job --from=cronjob/today today-test
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: today
+  namespace: productivity
+  labels:
+    app.kubernetes.io/name: today
+    app.kubernetes.io/part-of: homelab
+spec:
+  schedule: "5 7 * * *"
+  timeZone: Europe/Dublin
+  concurrencyPolicy: Forbid
+  # If the node was down at 07:05, still run when it comes back within 3 h.
+  startingDeadlineSeconds: 10800
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    metadata:
+      labels:
+        app.kubernetes.io/name: today
+        app.kubernetes.io/part-of: homelab
+    spec:
+      # One retry: a re-run only adds articles not already saved, so it is safe.
+      backoffLimit: 1
+      activeDeadlineSeconds: 3600
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: today
+            app.kubernetes.io/part-of: homelab
+            app.kubernetes.io/component: scrape
+        spec:
+          restartPolicy: Never
+          imagePullSecrets:
+            - name: ghcr-pull
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+          containers:
+            - name: scrape
+              image: ghcr.io/mick-m/daily-aggregator:sha-ca2ef4e
+              env:
+                - name: TZ
+                  value: Europe/Dublin
+                - name: FINNHUB_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: today-finnhub
+                      key: FINNHUB_API_KEY
+                      optional: true
+              resources:
+                requests:
+                  cpu: 200m
+                  memory: 512Mi
+                limits:
+                  cpu: "2"
+                  memory: 2Gi
+              volumeMounts:
+                - name: out
+                  mountPath: /app/out
+          volumes:
+            - name: out
+              persistentVolumeClaim:
+                claimName: today-data

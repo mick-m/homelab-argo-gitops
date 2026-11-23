@@ -84,3 +84,27 @@ patches:
       - op: replace
         path: /spec/tls/0/secretName
         value: staging-paperless-tls
+
+  - target:
+      kind: Ingress
+      name: today
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-today.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-today.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-today-tls
+
+  # Installed but paused on staging: run it by hand to test
+  # (kubectl -n productivity create job --from=cronjob/today today-test).
+  - target:
+      kind: CronJob
+      name: today
+    patch: |
+      - op: add
+        path: /spec/suspend
+        value: true
