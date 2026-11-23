@@ -1,7 +1,8 @@
 # config-export.json
 
 Reference copy of prod Open WebUI's settings (Admin Panel > Settings > Database >
-Export Config), exported 2026-11-23. Not mounted or applied: the live settings
+Export Config), exported 2026-11-23, then edited by hand: SearXNG language en-IE,
+follow-up suggestions off. Not mounted or applied: the live settings
 live in Open WebUI's database (PersistentConfig), which overrides the env vars in
 deployment.yaml.
 
