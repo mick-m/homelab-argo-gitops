@@ -39,15 +39,19 @@ spec:
               value: http://100.80.57.84:1234/v1
             - name: WEBUI_AUTH
               value: "false"
-            # Web search + page fetching through the in-cluster Firecrawl
-            # (base/utilities/firecrawl, no auth, so no API key). Open WebUI
-            # appends /v2/search and /v2/scrape. These are PersistentConfig:
-            # they only apply while Admin > Settings > Web Search has never
-            # been saved; after that the values stored in its DB win.
+            # Web search: the in-cluster SearXNG finds the links (same tuned
+            # engines and Irish/tech boosts Vane uses); the in-cluster Firecrawl
+            # (base/utilities/firecrawl, no auth, so no API key) fetches the
+            # pages. Firecrawl's own search had no backend configured.
+            # These are PersistentConfig: they only apply while Admin > Settings
+            # > Web Search has never been saved; after that the values stored in
+            # its DB win, so change them there too.
             - name: ENABLE_WEB_SEARCH
               value: "true"
             - name: WEB_SEARCH_ENGINE
-              value: firecrawl
+              value: searxng
+            - name: SEARXNG_QUERY_URL
+              value: http://searxng.productivity.svc/search?q=<query>
             - name: WEB_LOADER_ENGINE
               value: firecrawl
             - name: FIRECRAWL_API_BASE_URL
