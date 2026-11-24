@@ -8,6 +8,10 @@ metadata:
     app.kubernetes.io/part-of: homelab
 spec:
   replicas: 1
+  # The H2 user database in /configs takes a file lock: a second pod starting
+  # before the old one stops would fail to open it. One pod at a time.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: stirling-pdf
@@ -45,3 +49,10 @@ spec:
             initialDelaySeconds: 90
             periodSeconds: 10
             timeoutSeconds: 3
+          volumeMounts:
+            - name: configs
+              mountPath: /configs
+      volumes:
+        - name: configs
+          persistentVolumeClaim:
+            claimName: stirling-pdf-configs
