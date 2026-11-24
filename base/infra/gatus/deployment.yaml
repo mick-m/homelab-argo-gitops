@@ -1,0 +1,89 @@
+# Gatus: uptime checks and a status page, configured from git (config/config.yaml)
+# instead of Uptime Kuma's click-to-configure database. Runs beside Uptime Kuma
+# while the two are compared; Kuma goes once Gatus has proved itself.
+#
+# Alerting goes through Prometheus, not Gatus's own alerting: Gatus exposes
+# gatus_results_endpoint_success on /metrics (ServiceMonitor beside this file),
+# and homelab-alerts turns failures into Pushover messages with the existing
+# routing, quiet hours and inhibition. One alert path, not two.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gatus
+  namespace: infra
+  labels:
+    app.kubernetes.io/name: gatus
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate   # sqlite on an RWO volume: never two pods at once
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gatus
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gatus
+        app.kubernetes.io/part-of: homelab
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        runAsNonRoot: true
+      containers:
+        - name: gatus
+          image: ghcr.io/twin/gatus:v5.38.0
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: TZ
+              value: Europe/Dublin
+            - name: GATUS_CONFIG_PATH
+              value: /config/config.yaml
+            # Trust the homelab step-ca root as well as the public roots, so
+            # HTTPS checks verify *.sunnyside.home certificates properly.
+            - name: SSL_CERT_DIR
+              value: /etc/stepca
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: stepca
+              mountPath: /etc/stepca
+              readOnly: true
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: config
+          configMap:
+            name: gatus-config
+        - name: stepca
+          configMap:
+            name: gatus-stepca-root
+        - name: data
+          persistentVolumeClaim:
+            claimName: gatus-data

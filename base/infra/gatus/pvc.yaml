@@ -1,0 +1,17 @@
+# Check history for the status page (sqlite). local-path: losing it only loses
+# the uptime graphs, which refill on their own.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gatus-data
+  namespace: infra
+  labels:
+    app.kubernetes.io/name: gatus
+    app.kubernetes.io/part-of: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi

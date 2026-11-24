@@ -31,3 +31,18 @@ patches:
       - op: replace
         path: /spec/tls/0/secretName
         value: staging-uptime-kuma-tls
+
+  - target:
+      kind: Ingress
+      name: gatus
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-gatus.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-gatus.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-gatus-tls
+
