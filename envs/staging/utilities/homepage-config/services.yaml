@@ -36,6 +36,10 @@
         href: https://staging-uptime.sunnyside.home
         icon: uptime-kuma.png
         description: Service uptime monitoring
+    - Gatus:
+        href: https://staging-gatus.sunnyside.home
+        icon: gatus.png
+        description: Uptime checks (managed in git)
 
 - Productivity:
     - Nextcloud:

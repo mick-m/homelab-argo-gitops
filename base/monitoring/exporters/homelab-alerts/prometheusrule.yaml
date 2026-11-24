@@ -67,3 +67,53 @@ spec:
           annotations:
             summary: "New device on {{ $labels.network }}: {{ $labels.name }} ({{ $labels.mac }}, {{ $labels.ip }}, {{ $labels.oui }})"
             description: "A client not seen in the last 14 days joined the network. If you don't recognise it, find it in UniFi → Client Devices by MAC and block or move it."
+    # Uptime checks from Gatus (base/infra/gatus). Each endpoint in its config
+    # carries a "notify" label: critical (Pushover high priority, bypasses quiet
+    # hours: things the whole house depends on), warning (normal), none (shown on
+    # the status page only, e.g. the MacBook Pro's model servers, which sleep).
+    # max by (name, group): one alert per endpoint, however many Gatus pods
+    # have reported it.
+    - name: homelab-uptime
+      rules:
+        - alert: HomelabEndpointDownCritical
+          expr: max by (group, name) (gatus_results_endpoint_success{notify="critical"}) == 0
+          for: 3m
+          labels:
+            severity: critical
+          annotations:
+            summary: "{{ $labels.name }} is down"
+            description: "Gatus has failed the {{ $labels.group }} check \"{{ $labels.name }}\" for 3 minutes. See https://gatus.sunnyside.home for the failing condition."
+        - alert: HomelabEndpointDown
+          expr: max by (group, name) (gatus_results_endpoint_success{notify="warning"}) == 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.name }} is down"
+            description: "Gatus has failed the {{ $labels.group }} check \"{{ $labels.name }}\" for 10 minutes. See https://gatus.sunnyside.home for the failing condition."
+        - alert: HomelabUptimeChecksMissing
+          # Gatus itself gone (pod down, or its metrics not scraped): without
+          # this, every check above would go quiet rather than fire.
+          expr: absent(gatus_results_endpoint_success)
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Gatus uptime checks are not reporting"
+            description: "No gatus_results_endpoint_success series for 15 minutes. Check the gatus pod in the infra namespace and its ServiceMonitor."
+    # The daily brief (base/productivity/today): a run can fail, or never start,
+    # without anything being "down" — the page still serves yesterday's brief.
+    # Suspended CronJobs (staging) are ignored.
+    - name: homelab-jobs
+      rules:
+        - alert: HomelabDailyBriefStale
+          expr: |
+            (time() - kube_cronjob_status_last_successful_time{namespace="productivity", cronjob="today"}) > 26 * 3600
+              and on (namespace, cronjob) kube_cronjob_spec_suspend == 0
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "The daily brief has not completed in over 26 hours"
+            description: "CronJob productivity/today last succeeded {{ $value | humanizeDuration }} ago. kubectl -n productivity get jobs; kubectl -n productivity logs job/<latest>"
+

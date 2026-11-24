@@ -1,0 +1,257 @@
+# Gatus checks for the Sunnyside homelab. Edit here, not in the UI (there is none):
+# merging to main reloads it (new ConfigMap hash rolls the pod).
+#
+# Every endpoint carries extra-labels.notify, read by the homelab-uptime alerts
+# (base/monitoring/exporters/homelab-alerts):
+#   critical  Pushover high priority, ignores quiet hours, after 3 min down
+#   warning   normal Pushover, after 10 min down
+#   none      status page only
+#
+# Certificates: *.sunnyside.home served by the clusters are verified against the
+# step-ca root (stepca-root.pem beside this file). Uptime Kuma skipped TLS checks
+# on all of these; only Proxmox and GitLab still do here, since they may carry
+# their own self-signed certificates.
+
+metrics: true
+
+storage:
+  type: sqlite
+  path: /data/data.db
+
+ui:
+  title: Sunnyside status
+  header: Sunnyside status
+
+x-insecure: &insecure
+  insecure: true
+
+endpoints:
+  # ---------------------------------------------------------------- core
+  - name: dns1 resolves homelab names
+    group: Core
+    url: "192.168.1.14"
+    dns:
+      query-name: "today.sunnyside.home"
+      query-type: "A"
+    conditions:
+      - "[DNS_RCODE] == NOERROR"
+      - "[BODY] == 192.168.1.180"
+    extra-labels: { notify: critical }
+
+  - name: NAS file sharing (NFS)
+    group: Core
+    url: "tcp://192.168.1.202:2049"
+    conditions:
+      - "[CONNECTED] == true"
+    extra-labels: { notify: critical }
+
+  - name: UniFi gateway
+    group: Core
+    url: "tcp://192.168.1.1:443"
+    conditions:
+      - "[CONNECTED] == true"
+    extra-labels: { notify: critical }
+
+  - name: Internet
+    group: Core
+    url: "https://www.cloudflare.com/cdn-cgi/trace"
+    interval: 2m
+    conditions:
+      - "[STATUS] == 200"
+    # warning, not critical: if the line is down, Pushover can't be reached
+    # until it's back anyway.
+    extra-labels: { notify: warning }
+
+  # ---------------------------------------------------------- infrastructure
+  - name: Proxmox pve
+    group: Infrastructure
+    url: "https://pve.sunnyside.home:8006"
+    client: *insecure
+    conditions:
+      - "[STATUS] == 200"
+    extra-labels: { notify: warning }
+
+  - name: Proxmox pve2
+    group: Infrastructure
+    url: "https://pve2.sunnyside.home:8006"
+    client: *insecure
+    conditions:
+      - "[STATUS] == 200"
+    extra-labels: { notify: warning }
+
+  - name: Proxmox pve3
+    group: Infrastructure
+    url: "https://pve3.sunnyside.home:8006"
+    client: *insecure
+    conditions:
+      - "[STATUS] == 200"
+    extra-labels: { notify: warning }
+
+  - name: TrueNAS web UI
+    group: Infrastructure
+    url: "https://192.168.1.202"
+    client: *insecure
+    conditions:
+      - "[STATUS] < 400"
+    extra-labels: { notify: warning }
+
+  - name: GitLab
+    group: Infrastructure
+    url: "https://gitlab.sunnyside.home/"
+    client: *insecure
+    conditions:
+      - "[STATUS] < 400"
+    extra-labels: { notify: warning }
+
+  - name: step-ca (certificates)
+    group: Infrastructure
+    url: "https://ca.sunnyside.home:9000/health"
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+    extra-labels: { notify: warning }
+
+  - name: k3s-prod API
+    group: Infrastructure
+    url: "tcp://192.168.1.173:6443"
+    conditions:
+      - "[CONNECTED] == true"
+    extra-labels: { notify: warning }
+
+  - name: k3s-prod ingress (Traefik)
+    group: Infrastructure
+    url: "tcp://192.168.1.180:443"
+    conditions:
+      - "[CONNECTED] == true"
+    extra-labels: { notify: warning }
+
+  - name: k3s-staging API
+    group: Infrastructure
+    url: "tcp://192.168.1.251:6443"
+    conditions:
+      - "[CONNECTED] == true"
+    extra-labels: { notify: warning }
+
+  - name: k3s-staging ingress (Traefik)
+    group: Infrastructure
+    url: "tcp://192.168.1.190:443"
+    conditions:
+      - "[CONNECTED] == true"
+    extra-labels: { notify: warning }
+
+  # ------------------------------------------------------------------- media
+  - name: Plex
+    group: Media
+    url: "https://plex.sunnyside.home/identity"
+    conditions:
+      - "[STATUS] == 200"
+    extra-labels: { notify: warning }
+
+  - name: Tautulli
+    group: Media
+    url: "https://tautulli.sunnyside.home/home"
+    conditions:
+      - "[STATUS] < 400"
+    extra-labels: { notify: warning }
+
+  - name: Roon
+    group: Media
+    url: "tcp://roon.sunnyside.home:9200"
+    conditions:
+      - "[CONNECTED] == true"
+    extra-labels: { notify: warning }
+
+  # -------------------------------------------------------------------- apps
+  - name: Nextcloud
+    group: Apps
+    url: "https://cloud.sunnyside.home/status.php"
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].installed == true"
+      - "[BODY].maintenance == false"
+    extra-labels: { notify: warning }
+
+  - name: Immich
+    group: Apps
+    url: "https://immich.sunnyside.home/api/server/ping"
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].res == pong"
+    extra-labels: { notify: warning }
+
+  - name: Paperless
+    group: Apps
+    url: "https://paperless.sunnyside.home/"
+    conditions:
+      - "[STATUS] < 400"
+    extra-labels: { notify: warning }
+
+  - name: Mealie
+    group: Apps
+    url: "https://mealie.sunnyside.home/api/app/about"
+    conditions:
+      - "[STATUS] == 200"
+    extra-labels: { notify: warning }
+
+  - name: FreshRSS
+    group: Apps
+    url: "https://rss.sunnyside.home/"
+    conditions:
+      - "[STATUS] < 400"
+    extra-labels: { notify: warning }
+
+  - name: Daily brief
+    group: Apps
+    url: "https://today.sunnyside.home/days.json"
+    conditions:
+      - "[STATUS] == 200"
+    extra-labels: { notify: warning }
+
+  - name: SearXNG returns results
+    group: Apps
+    # Results, not just "up": the 2026-11-22 Brave breakage served 200s full
+    # of dead links. Vane and Open WebUI search through this.
+    url: "https://search.sunnyside.home/search?q=ireland&format=json"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "len([BODY].results) > 0"
+    extra-labels: { notify: warning }
+
+  - name: Open WebUI
+    group: Apps
+    url: "https://webui.sunnyside.home/health"
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == true"
+    extra-labels: { notify: warning }
+
+  - name: Vane
+    group: Apps
+    url: "https://vane.sunnyside.home/"
+    conditions:
+      - "[STATUS] < 400"
+    extra-labels: { notify: warning }
+
+  - name: Grafana
+    group: Apps
+    url: "https://grafana.sunnyside.home/api/health"
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].database == ok"
+    extra-labels: { notify: warning }
+
+  # ------------------------------------------- local AI (MacBook Pro, sleeps)
+  - name: LM Studio (9B)
+    group: Local AI
+    url: "tcp://100.80.57.84:1234"
+    conditions:
+      - "[CONNECTED] == true"
+    extra-labels: { notify: none }
+
+  - name: Splash (27B)
+    group: Local AI
+    url: "tcp://100.80.57.84:8000"
+    conditions:
+      - "[CONNECTED] == true"
+    extra-labels: { notify: none }
