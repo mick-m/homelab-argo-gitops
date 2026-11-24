@@ -32,14 +32,10 @@
         href: https://staging-grafana.sunnyside.home
         icon: grafana.png
         description: Metrics & dashboards
-    - Uptime Kuma:
+    - Uptime:
         href: https://staging-uptime.sunnyside.home
-        icon: uptime-kuma.png
-        description: Service uptime monitoring
-    - Gatus:
-        href: https://staging-gatus.sunnyside.home
         icon: gatus.png
-        description: Uptime checks (managed in git)
+        description: Uptime checks (Gatus, managed in git)
 
 - Productivity:
     - Nextcloud:

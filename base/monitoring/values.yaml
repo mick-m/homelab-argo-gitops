@@ -52,7 +52,7 @@ alertmanager:
         # scrape cannot tell "asleep" from "node_exporter broken", and the Mac
         # naps during the day too. Scraping continues, so the macOS dashboard
         # (gnetId 15797) still works; it just has gaps while the Mac is off.
-        # For genuine host-reachability checks use Uptime Kuma in `infra`.
+        # For genuine host-reachability checks use Gatus in `infra` (uptime.sunnyside.home).
         #
         # Scoped to this one job on purpose. TargetDown is the right alert for
         # every other exporter — those are in-cluster pods scraping always-on

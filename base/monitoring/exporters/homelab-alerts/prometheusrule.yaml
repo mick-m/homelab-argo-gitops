@@ -82,7 +82,7 @@ spec:
             severity: critical
           annotations:
             summary: "{{ $labels.name }} is down"
-            description: "Gatus has failed the {{ $labels.group }} check \"{{ $labels.name }}\" for 3 minutes. See https://gatus.sunnyside.home for the failing condition."
+            description: "Gatus has failed the {{ $labels.group }} check \"{{ $labels.name }}\" for 3 minutes. See https://uptime.sunnyside.home for the failing condition."
         - alert: HomelabEndpointDown
           expr: max by (group, name) (gatus_results_endpoint_success{notify="warning"}) == 0
           for: 10m
@@ -90,7 +90,7 @@ spec:
             severity: warning
           annotations:
             summary: "{{ $labels.name }} is down"
-            description: "Gatus has failed the {{ $labels.group }} check \"{{ $labels.name }}\" for 10 minutes. See https://gatus.sunnyside.home for the failing condition."
+            description: "Gatus has failed the {{ $labels.group }} check \"{{ $labels.name }}\" for 10 minutes. See https://uptime.sunnyside.home for the failing condition."
         - alert: HomelabUptimeChecksMissing
           # Gatus itself gone (pod down, or its metrics not scraped): without
           # this, every check above would go quiet rather than fire.

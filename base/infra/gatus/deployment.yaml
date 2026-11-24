@@ -1,6 +1,6 @@
-# Gatus: uptime checks and a status page, configured from git (config/config.yaml)
-# instead of Uptime Kuma's click-to-configure database. Runs beside Uptime Kuma
-# while the two are compared; Kuma goes once Gatus has proved itself.
+# Gatus: uptime checks and a status page at uptime.sunnyside.home, configured from
+# git (config/config.yaml). Replaced Uptime Kuma, whose checks lived only in its
+# own database, on 2026-11-24 after running side by side.
 #
 # Alerting goes through Prometheus, not Gatus's own alerting: Gatus exposes
 # gatus_results_endpoint_success on /metrics (ServiceMonitor beside this file),
