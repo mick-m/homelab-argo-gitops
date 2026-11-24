@@ -1,0 +1,19 @@
+# Stirling PDF's /configs: its user database (H2), settings.yml and keys.
+# Without it every pod restart rebuilt the users from scratch and the login fell
+# back to the default admin/stirling — which is what happened when k3s-prod's pods
+# were evicted on 2026-10-31, unnoticed until 2026-11-24.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: stirling-pdf-configs
+  namespace: utilities
+  labels:
+    app.kubernetes.io/name: stirling-pdf
+    app.kubernetes.io/part-of: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-client
+  resources:
+    requests:
+      storage: 1Gi
