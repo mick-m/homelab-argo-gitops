@@ -6,3 +6,10 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
+configMapGenerator:
+  # Hash suffix on the name: an edit rolls the nginx pod (subPath mounts never
+  # see ConfigMap updates). Never set disableNameSuffixHash.
+  - name: today-nginx
+    namespace: productivity
+    files:
+      - default.conf=config/default.conf
