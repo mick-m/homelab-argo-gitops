@@ -3,4 +3,3 @@ kind: Kustomization
 resources:
   - gatus
   - guacamole
-  - uptime-kuma

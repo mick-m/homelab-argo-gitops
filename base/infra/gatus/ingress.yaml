@@ -11,7 +11,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: gatus.sunnyside.home
+    - host: uptime.sunnyside.home
       http:
         paths:
           - path: /
@@ -23,5 +23,5 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - gatus.sunnyside.home
+        - uptime.sunnyside.home
       secretName: gatus-tls

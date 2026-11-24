@@ -8,8 +8,8 @@
 #   none      status page only
 #
 # Certificates: *.sunnyside.home served by the clusters are verified against the
-# step-ca root (stepca-root.pem beside this file). Uptime Kuma skipped TLS checks
-# on all of these; only Proxmox and GitLab still do here, since they may carry
+# step-ca root (stepca-root.pem beside this file). Uptime Kuma (retired 2026-11-24)
+# skipped TLS checks on all of these; only Proxmox and GitLab still do here, since they may carry
 # their own self-signed certificates.
 
 metrics: true
