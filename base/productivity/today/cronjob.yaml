@@ -50,7 +50,7 @@ spec:
             fsGroup: 1000
           containers:
             - name: scrape
-              image: ghcr.io/mick-m/daily-aggregator:sha-7e9c3a5
+              image: ghcr.io/mick-m/daily-aggregator:sha-e7ffa46
               env:
                 - name: TZ
                   value: Europe/Dublin
