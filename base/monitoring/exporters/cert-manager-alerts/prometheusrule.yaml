@@ -1,4 +1,12 @@
 ---
+# Certificates come from step-ca (ClusterIssuer stepca-acme). cert-manager renews
+# each one about 30 days before expiry on its own, so a certificate nearing
+# expiry is normal and not alerted on. These rules fire only when renewal has
+# failed: past the point it should have happened, or cert-manager reports the
+# certificate not ready (usually step-ca unreachable or an ACME challenge failing).
+#
+# The metrics come from cert-manager's own pod, so `namespace` is "cert-manager";
+# the certificate's namespace is `exported_namespace`.
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -12,14 +20,45 @@ spec:
   groups:
     - name: cert-manager
       rules:
-        - alert: CertificateRenewalImminent
+        - alert: CertificateRenewalOverdue
           expr: |
-            (certmanager_certificate_expiration_timestamp_seconds - time()) < (37 * 24 * 3600)
+            (certmanager_certificate_expiration_timestamp_seconds - time()) < (21 * 24 * 3600)
             and
-            (certmanager_certificate_expiration_timestamp_seconds - time()) > 0
+            (certmanager_certificate_expiration_timestamp_seconds - time()) > (7 * 24 * 3600)
           for: 1h
           labels:
             severity: warning
           annotations:
-            summary: "Certificate {{ $labels.namespace }}/{{ $labels.name }} renewing soon"
-            description: "Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} expires in {{ $value | humanizeDuration }}. cert-manager will attempt renewal in ~1 week."
+            summary: "Certificate {{ $labels.exported_namespace }}/{{ $labels.name }} has not renewed"
+            description: >-
+              {{ $labels.exported_namespace }}/{{ $labels.name }} expires in
+              {{ $value | humanizeDuration }}; cert-manager should have renewed it about
+              30 days before expiry. Check `kubectl -n {{ $labels.exported_namespace }}
+              describe certificate {{ $labels.name }}` and that step-ca is reachable.
+
+        - alert: CertificateExpiringSoon
+          expr: |
+            (certmanager_certificate_expiration_timestamp_seconds - time()) < (7 * 24 * 3600)
+          for: 1h
+          labels:
+            severity: critical
+          annotations:
+            summary: "Certificate {{ $labels.exported_namespace }}/{{ $labels.name }} expires within 7 days"
+            description: >-
+              {{ $labels.exported_namespace }}/{{ $labels.name }} expires in
+              {{ $value | humanizeDuration }} and has not been renewed. Browsers will
+              refuse the site once it expires.
+
+        - alert: CertificateNotReady
+          expr: |
+            certmanager_certificate_ready_status{condition="False"} == 1
+          # A renewal in progress is briefly not ready; a failing one stays so.
+          for: 2h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Certificate {{ $labels.exported_namespace }}/{{ $labels.name }} not ready"
+            description: >-
+              cert-manager has reported {{ $labels.exported_namespace }}/{{ $labels.name }}
+              not ready for 2 hours: issuing or renewing it is failing. See
+              `kubectl -n {{ $labels.exported_namespace }} describe certificate {{ $labels.name }}`.
