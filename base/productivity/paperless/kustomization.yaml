@@ -6,3 +6,15 @@ resources:
   - service.yaml
   - ingress.yaml
   - pvc.yaml
+  - job-rules.yaml
+  - cronjob-export.yaml
+configMapGenerator:
+  # Rules managed in git and the post-import script; see rules/rules.yaml.
+  # Hashed name: a change rolls the Paperless pod and the Job picks it up.
+  - name: paperless-rules
+    namespace: productivity   # must match the Deployment/Job, or the hashed name is not substituted
+    files:
+      - rules/rules.yaml
+      - rules/apply_rules.py
+      - rules/post_consume.sh
+      - rules/post_consume.py
