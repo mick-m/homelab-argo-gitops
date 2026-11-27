@@ -65,12 +65,17 @@ with transaction.atomic():
             filter_filename=when.get("filename"),
             filter_has_correspondent=by_name(Correspondent, when.get("correspondent")),
             filter_has_document_type=by_name(DocumentType, when.get("document_type")),
-            matching_algorithm=WorkflowTrigger.WorkflowTriggerMatching.NONE,
+            # when.content: the document text must contain this phrase (exact match).
+            matching_algorithm=(WorkflowTrigger.WorkflowTriggerMatching.LITERAL if when.get("content")
+                                else WorkflowTrigger.WorkflowTriggerMatching.NONE),
+            match=when.get("content", ""),
+            is_insensitive=True,
         )
         action = WorkflowAction.objects.create(
             type=WorkflowAction.WorkflowActionType.ASSIGNMENT,
             assign_title=act.get("title"),
             assign_document_type=by_name(DocumentType, act.get("document_type")),
+            assign_correspondent=by_name(Correspondent, act.get("correspondent")),
         )
         action.assign_tags.set([by_name(Tag, n) for n in act.get("tags", [])])
         w.triggers.set([trig])

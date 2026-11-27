@@ -27,6 +27,7 @@ document_types:
   - {name: Report / Plans, matching: auto}
   - {name: Correspondence, matching: auto}
   - {name: ID document, matching: none}
+  - {name: Bank statement, matching: none}  # set by the AIB workflow
 
 tags:
   - {name: Sunnyside, matching: auto}
@@ -37,6 +38,8 @@ tags:
 
 # Regular senders only: their matching rule. One-off correspondents stay in the UI.
 correspondents:
+  # Set by the AIB workflow, not by matching: other letters mention AIB too.
+  - {name: AIB, matching: none}
   - {name: Flogas, matching: exact, match: Flogas}
   - {name: Pure Telecom, matching: regex, match: "Pure Telecom|SIBT00007644"}
   - {name: Workday, matching: exact, match: Workday}
@@ -48,7 +51,18 @@ correspondents:
 # Single braces come out literally (2026-11-27).
 # Flogas titles are finished by post_consume.py, which runs after these and adds
 # the issue date from the file name and the billing period from the bill's text.
+#
+# Order matters: workflows run in order and each sees the previous one's changes
+# (3.4.1 refreshes the document between workflows). Bank statements mention
+# Flogas and Pure Telecom (direct debits), so the sender rules match them; the
+# AIB workflow runs first and sets the correspondent to AIB, after which the bill
+# workflows no longer match. Without it, statements became "Pure Telecom Bill"s
+# (2026-11-27).
 workflows:
+  - name: "Title: AIB statement"
+    order: 1
+    when: {content: "Statement of Account with Allied Irish Banks"}
+    set: {title: "AIB Statement {{ created_year }}-{{ created_month }}", correspondent: AIB, document_type: Bank statement}
   - name: "Title: Flogas gas bill"
     order: 10
     when: {correspondent: Flogas, filename: "FGNG*"}
