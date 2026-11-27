@@ -65,10 +65,12 @@ with transaction.atomic():
             filter_filename=when.get("filename"),
             filter_has_correspondent=by_name(Correspondent, when.get("correspondent")),
             filter_has_document_type=by_name(DocumentType, when.get("document_type")),
-            # when.content: the document text must contain this phrase (exact match).
+            # when.content: the text must contain this phrase (exact match);
+            # when.content_regex: the text must match this regular expression.
             matching_algorithm=(WorkflowTrigger.WorkflowTriggerMatching.LITERAL if when.get("content")
+                                else WorkflowTrigger.WorkflowTriggerMatching.REGEX if when.get("content_regex")
                                 else WorkflowTrigger.WorkflowTriggerMatching.NONE),
-            match=when.get("content", ""),
+            match=when.get("content") or when.get("content_regex") or "",
             is_insensitive=True,
         )
         action = WorkflowAction.objects.create(

@@ -27,7 +27,8 @@ document_types:
   - {name: Report / Plans, matching: auto}
   - {name: Correspondence, matching: auto}
   - {name: ID document, matching: none}
-  - {name: Bank statement, matching: none}  # set by the AIB workflow
+  - {name: Bank statement, matching: none}  # set by the AIB and Revolut workflows
+  - {name: Tax document, matching: none}    # set by the Revenue workflow
 
 tags:
   - {name: Sunnyside, matching: auto}
@@ -41,6 +42,7 @@ correspondents:
   # Set by the statement workflows, not by matching: other documents mention them.
   - {name: AIB, matching: none}
   - {name: Revolut, matching: none}
+  - {name: Revenue, matching: none}
   - {name: Flogas, matching: exact, match: Flogas}
   - {name: Pure Telecom, matching: regex, match: "Pure Telecom|SIBT00007644"}
   - {name: Workday, matching: exact, match: Workday}
@@ -71,6 +73,15 @@ workflows:
     order: 2
     when: {filename: "account-statement_*", content: "Revolut Ltd"}
     set: {title: "Revolut Statement {{ created_year }}-{{ created_month }}", correspondent: Revolut, document_type: Bank statement}
+  # Revenue's downloads are <Kind>_<Year>_<Number>.pdf (Tax_Credit_Certificate_2021_…,
+  # Statement_of_Liability_2009_…, LPT_Payment_Method_Reminder_2027_…). Both that
+  # file name and Revenue wording: older letters have "Revenue" only in the logo,
+  # but every one opens "In all correspondence please quote". Before Workday's rule
+  # matters: tax credit certificates name the employer (2026-11-27).
+  - name: "Title: Revenue document"
+    order: 3
+    when: {filename: "*_[12][0-9][0-9][0-9]_[0-9]*", content_regex: "Revenue|PAYE Services|LPT Branch|In all correspondence please quote"}
+    set: {title: "Revenue document {{ created_year }}", correspondent: Revenue, document_type: Tax document}
   - name: "Title: Flogas gas bill"
     order: 10
     when: {correspondent: Flogas, filename: "FGNG*"}
