@@ -71,6 +71,28 @@ patches:
         path: /spec/template/spec/containers/1/env/11/value
         value: https://staging-cloud.sunnyside.home
 
+  # Staging Paperless must not import from the NAS consume folder: it shares it with
+  # prod, and whichever cluster polls first imports a scan and deletes it, so some
+  # of Mick's scans ended up in staging instead of his real archive (2026-11-27).
+  # Swap the NFS volume for an empty pod-local folder; staging still starts and
+  # can be tested by uploading through its UI. Strategic merge, matched by volume
+  # name, so the volume's position in the list does not matter.
+  - target:
+      kind: Deployment
+      name: paperless
+    patch: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: paperless
+      spec:
+        template:
+          spec:
+            volumes:
+              - name: consume
+                nfs: null
+                emptyDir: {}
+
   - target:
       kind: Ingress
       name: paperless
