@@ -1,0 +1,17 @@
+# Suggestion history (SQLite), settings and edited prompts. local-path: SQLite
+# does not belong on NFS, and losing it only loses history and prompt edits.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-gpt-data
+  namespace: productivity
+  labels:
+    app.kubernetes.io/name: paperless-gpt
+    app.kubernetes.io/part-of: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi

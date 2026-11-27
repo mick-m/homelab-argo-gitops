@@ -71,6 +71,39 @@ patches:
         path: /spec/template/spec/containers/1/env/11/value
         value: https://staging-cloud.sunnyside.home
 
+  - target:
+      kind: Ingress
+      name: paperless-gpt
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-paperless-gpt.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging-paperless-gpt.sunnyside.home
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: staging-paperless-gpt-tls
+
+  # Links from paperless-gpt back to staging Paperless. Strategic merge, matched
+  # by env var name, so the variable's position does not matter.
+  - target:
+      kind: Deployment
+      name: paperless-gpt
+    patch: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: paperless-gpt
+      spec:
+        template:
+          spec:
+            containers:
+              - name: paperless-gpt
+                env:
+                  - name: PAPERLESS_PUBLIC_URL
+                    value: https://staging-paperless.sunnyside.home
+
   # Staging Paperless must not import from the NAS consume folder: it shares it with
   # prod, and whichever cluster polls first imports a scan and deletes it, so some
   # of Mick's scans ended up in staging instead of his real archive (2026-11-27).

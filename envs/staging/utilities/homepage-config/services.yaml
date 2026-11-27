@@ -46,6 +46,10 @@
         href: https://staging-paperless.sunnyside.home
         icon: paperless-ngx.png
         description: Document management
+    - Paperless-GPT:
+        href: https://staging-paperless-gpt.sunnyside.home
+        icon: paperless-ngx.png
+        description: AI titles and tags for Paperless
     - FreshRSS:
         href: https://staging-rss.sunnyside.home
         icon: freshrss.png

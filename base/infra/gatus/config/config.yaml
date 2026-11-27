@@ -186,6 +186,13 @@ endpoints:
       - "[STATUS] < 400"
     extra-labels: { notify: warning }
 
+  - name: Paperless-GPT
+    group: Apps
+    url: "https://paperless-gpt.sunnyside.home/"
+    conditions:
+      - "[STATUS] < 400"
+    extra-labels: { notify: warning }
+
   - name: Mealie
     group: Apps
     url: "https://mealie.sunnyside.home/api/app/about"

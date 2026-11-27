@@ -1,0 +1,110 @@
+# paperless-gpt: suggests titles, tags, correspondents, document types and dates
+# for Paperless-ngx documents using an LLM, and writes them back through
+# Paperless's API. Paperless itself is unchanged.
+#
+# - LLM: LM Studio on Mick's MacBook Pro over Tailscale, model qwen/qwen3.5-9b
+#   (as Open WebUI and Vane). Only works while that Mac is awake with LM Studio
+#   running; documents processed meanwhile get the paperless-gpt-failed tag.
+# - Workflow: tag a document "paperless-gpt" in Paperless, review the suggestions
+#   at paperless-gpt.sunnyside.home, apply. "paperless-gpt-auto" applies without
+#   review. CREATE_NEW_TAGS stays off (default): it only uses existing tags.
+# - No LLM OCR: VISION_LLM_PROVIDER is unset, so the vision client is not created;
+#   Paperless's own OCR text is what the LLM reads.
+# - No login of its own (upstream README): LAN/tailnet only, like Open WebUI.
+# - Secret paperless-gpt is created per cluster by Mick, out of band (not in git):
+#     kubectl -n productivity create secret generic paperless-gpt \
+#       --from-literal=PAPERLESS_API_TOKEN=<Paperless: profile → API auth token> \
+#       --from-literal=OPENAI_API_KEY=<LM Studio API token>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless-gpt
+  namespace: productivity
+  labels:
+    app.kubernetes.io/name: paperless-gpt
+    app.kubernetes.io/part-of: homelab
+spec:
+  replicas: 1
+  # SQLite history on a RWO local-path volume: never two pods at once.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: paperless-gpt
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: paperless-gpt
+        app.kubernetes.io/part-of: homelab
+    spec:
+      containers:
+        - name: paperless-gpt
+          image: ghcr.io/icereed/paperless-gpt:v0.31.0
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: TZ
+              value: Europe/Dublin
+            - name: PAPERLESS_BASE_URL
+              value: http://paperless.productivity.svc
+            # Links in its UI back to the document in Paperless.
+            - name: PAPERLESS_PUBLIC_URL
+              value: https://paperless.sunnyside.home
+            - name: LLM_PROVIDER
+              value: openai
+            - name: OPENAI_BASE_URL
+              value: http://100.80.57.84:1234/v1
+            - name: LLM_MODEL
+              value: qwen/qwen3.5-9b
+            - name: LLM_LANGUAGE
+              value: English
+            # Token budget per request (prompt + document text); longer documents are
+            # cut to fit, so they stay inside the context LM Studio loads the model with.
+            - name: TOKEN_LIMIT
+              value: "6000"
+            - name: PAPERLESS_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-gpt
+                  key: PAPERLESS_API_TOKEN
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-gpt
+                  key: OPENAI_API_KEY
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+          # The entrypoint chowns /app to PUID/PGID (10001) as root, which local-path
+          # allows; on nfs-client it would fail (root squash) and stop the container.
+          volumeMounts:
+            - name: data
+              mountPath: /app/db
+              subPath: db
+            - name: data
+              mountPath: /app/config
+              subPath: config
+            - name: data
+              mountPath: /app/prompts
+              subPath: prompts
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: paperless-gpt-data
