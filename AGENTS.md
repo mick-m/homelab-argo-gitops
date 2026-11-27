@@ -128,8 +128,10 @@ exports pass IDs through, and Mick's Mac writes over SMB as the TrueNAS user `mi
 takes such a folder away from him: Paperless did this to `documents/paperless/consume`
 until it got `USERMAP_UID`/`USERMAP_GID` 3000 (2026-11-27). For linuxserver images
 that means `PUID`/`PGID` 3000 on any SMB-shared NFS mount, not the usual 1000. Read-only
-mounts are unaffected. Details: `docs/network.md` in the bootstrap repo, "Who owns
-files on the NAS".
+mounts are unaffected. **Changing an app's user also needs a one-off chown of its
+`nfs-client` PVCs on TrueNAS** (`sudo chown -R`): `k3s-dynamic` squashes root, so the
+image's own startup chown fails there, and Paperless's imports broke until it was done.
+Details: `docs/network.md` in the bootstrap repo, "Who owns files on the NAS".
 
 **Don't `kubectl apply` to the clusters to "fix" something.** Staging self-heals
 and will revert you; prod does not self-heal and will silently drift from git.
