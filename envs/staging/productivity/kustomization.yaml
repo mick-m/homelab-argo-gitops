@@ -92,6 +92,13 @@ patches:
               - name: consume
                 nfs: null
                 emptyDir: {}
+            # Paperless (Django) accepts logins and forms only from PAPERLESS_URL;
+            # with prod's URL every staging form failed CSRF verification.
+            containers:
+              - name: paperless
+                env:
+                  - name: PAPERLESS_URL
+                    value: https://staging-paperless.sunnyside.home
 
   - target:
       kind: Ingress
