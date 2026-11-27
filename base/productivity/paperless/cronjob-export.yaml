@@ -92,6 +92,11 @@ spec:
                   mountPath: /usr/src/paperless/media
                 - name: data
                   mountPath: /usr/src/paperless/data
+                # Paperless's startup checks require a writable consume folder even
+                # for the exporter ("PAPERLESS_CONSUMPTION_DIR is not writeable",
+                # 2026-11-27); the image's own is not writable by 3000. Never used.
+                - name: consume
+                  mountPath: /usr/src/paperless/consume
                 - name: nas
                   mountPath: /export
                   subPath: export
@@ -101,6 +106,8 @@ spec:
               persistentVolumeClaim:
                 claimName: paperless-media
             - name: data
+              emptyDir: {}
+            - name: consume
               emptyDir: {}
             - name: nas
               nfs:
