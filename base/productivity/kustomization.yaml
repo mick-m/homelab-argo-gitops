@@ -6,4 +6,5 @@ resources:
   - searxng
   - nextcloud
   - paperless
+  - paperless-gpt
   - today
