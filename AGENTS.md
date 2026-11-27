@@ -122,6 +122,15 @@ not sync the two files. Grafana's Service name differs per env
 (`prod-monitoring-grafana` vs `staging-monitoring-grafana`), which is why the
 ingress is duplicated rather than patched.
 
+**NAS folders Mick also uses over SMB need the pod to run as 3000:3000.** The NFS
+exports pass IDs through, and Mick's Mac writes over SMB as the TrueNAS user `mickm`
+(UID/GID 3000). An image that chowns its volumes at startup to its own user (1000)
+takes such a folder away from him: Paperless did this to `documents/paperless/consume`
+until it got `USERMAP_UID`/`USERMAP_GID` 3000 (2026-11-27). For linuxserver images
+that means `PUID`/`PGID` 3000 on any SMB-shared NFS mount, not the usual 1000. Read-only
+mounts are unaffected. Details: `docs/network.md` in the bootstrap repo, "Who owns
+files on the NAS".
+
 **Don't `kubectl apply` to the clusters to "fix" something.** Staging self-heals
 and will revert you; prod does not self-heal and will silently drift from git.
 Change the manifest.
