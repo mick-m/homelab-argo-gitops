@@ -38,8 +38,9 @@ tags:
 
 # Regular senders only: their matching rule. One-off correspondents stay in the UI.
 correspondents:
-  # Set by the AIB workflow, not by matching: other letters mention AIB too.
+  # Set by the statement workflows, not by matching: other documents mention them.
   - {name: AIB, matching: none}
+  - {name: Revolut, matching: none}
   - {name: Flogas, matching: exact, match: Flogas}
   - {name: Pure Telecom, matching: regex, match: "Pure Telecom|SIBT00007644"}
   - {name: Workday, matching: exact, match: Workday}
@@ -63,6 +64,13 @@ workflows:
     order: 1
     when: {content: "Statement of Account with Allied Irish Banks"}
     set: {title: "AIB Statement {{ created_year }}-{{ created_month }}", correspondent: AIB, document_type: Bank statement}
+  # Revolut's export: account-statement_<from>_<to>_<lang>_<id>.pdf. Both the file
+  # name and "Revolut Ltd" in the text, so an AIB statement listing a transfer to
+  # Revolut does not match.
+  - name: "Title: Revolut statement"
+    order: 2
+    when: {filename: "account-statement_*", content: "Revolut Ltd"}
+    set: {title: "Revolut Statement {{ created_year }}-{{ created_month }}", correspondent: Revolut, document_type: Bank statement}
   - name: "Title: Flogas gas bill"
     order: 10
     when: {correspondent: Flogas, filename: "FGNG*"}
