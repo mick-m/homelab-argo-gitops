@@ -1,4 +1,4 @@
-# Finishes Flogas bill and AIB statement titles after import (run by post_consume.sh through
+# Finishes Flogas bill, AIB and Revolut statement titles after import (run by post_consume.sh through
 # "manage.py shell", so it uses Paperless's own database access).
 #
 # - Date: Paperless dates a Flogas bill from the first date in its text, the start
@@ -14,6 +14,10 @@
 #   dated by its last transaction and titled with the period from its "Balance
 #   Forward" date: "AIB Statement 2025-04 (19 Mar–28 Apr)". The 17 statements in
 #   prod (2026-11-27) chain end to end that way.
+# Revolut statements: the period is in the file name
+#   (account-statement_2017-05-01_2026-11-27_en-us_<id>.pdf), the currency opens
+#   the text ("EUR Statement"): "Revolut EUR Statement 2026-11 (1 May 2017–27 Nov 2026)",
+#   dated by the period's end.
 # Anything else is left untouched. Checked against all 24 Flogas bills in prod
 # (2026-11-27): every one has the line, and the periods join up end to end.
 import datetime
@@ -72,11 +76,29 @@ def aib_title(content):
     return last, f"AIB Statement {last:%Y-%m} ({span})"
 
 
+REVOLUT_FILE = re.compile(r"^account-statement_(\d{4})-(\d{2})-(\d{2})_(\d{4})-(\d{2})-(\d{2})_", re.I)
+
+
+def revolut_title(original_filename, content):
+    """Returns (end_date, title) for a Revolut statement, or None."""
+    m = REVOLUT_FILE.match(original_filename or "")
+    if not m:
+        return None
+    first = datetime.date(int(m[1]), int(m[2]), int(m[3]))
+    last = datetime.date(int(m[4]), int(m[5]), int(m[6]))
+    cur = re.match(r"\s*([A-Z]{3}) Statement", content or "")
+    a, b = f"{first.day} {MON[first.month - 1]}", f"{last.day} {MON[last.month - 1]}"
+    span = f"{a}–{b}" if first.year == last.year else f"{a} {first.year}–{b} {last.year}"
+    return last, f"Revolut {cur[1] + ' ' if cur else ''}Statement {last:%Y-%m} ({span})"
+
+
 def main():
     doc = Document.objects.get(pk=int(os.environ["DOCUMENT_ID"]))
     name = doc.correspondent.name if doc.correspondent else ""
     if name == "AIB":
         found = aib_title(doc.content)
+    elif name == "Revolut":
+        found = revolut_title(doc.original_filename, doc.content)
     elif name == "Flogas":
         found = flogas_title(doc.original_filename, doc.content)
     else:
