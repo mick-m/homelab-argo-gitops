@@ -5,11 +5,20 @@
 # - LLM: LM Studio on Mick's MacBook Pro over Tailscale, model qwen/qwen3.5-9b
 #   (as Open WebUI and Vane). Only works while that Mac is awake with LM Studio
 #   running; documents processed meanwhile get the paperless-gpt-failed tag.
-# - Workflow: tag a document "paperless-gpt" in Paperless, review the suggestions
-#   at paperless-gpt.sunnyside.home, apply. "paperless-gpt-auto" applies without
-#   review. CREATE_NEW_TAGS stays off (default): it only uses existing tags.
-# - No LLM OCR: VISION_LLM_PROVIDER is unset, so the vision client is not created;
-#   Paperless's own OCR text is what the LLM reads.
+# - Kept for OCR of hard scans only (Mick, 2026-11-27). Titles, tags,
+#   correspondents, types and dates come from Paperless's own matching rules and
+#   workflows, which are deterministic; paperless-gpt's names were inconsistent.
+#   AUTO_GENERATE_* below are all false, so even a document that gets the
+#   "paperless-gpt-auto" tag has none of that metadata touched. The trigger tags
+#   "paperless-gpt" and "paperless-gpt-auto" were deleted in Paperless; paperless-gpt
+#   does not recreate them (it only recreates its -failed, -auto-complete and
+#   -ocr-complete result tags at startup, which trigger nothing).
+# - OCR: an OCR run replaces only the document's text and adds the
+#   paperless-gpt-ocr-complete tag; title, tags, correspondent and type are kept.
+#   Not enabled yet: VISION_LLM_PROVIDER/VISION_LLM_MODEL are unset, so the vision
+#   client is not created. When enabled, trigger with the "paperless-gpt-ocr-auto"
+#   tag, created in Paperless with matching "None" (a tag with "Auto" matching can
+#   be put on new documents by Paperless's classifier).
 # - No login of its own (upstream README): LAN/tailnet only, like Open WebUI.
 # - Secret paperless-gpt is created per cluster by Mick, out of band (not in git):
 #     kubectl -n productivity create secret generic paperless-gpt \
@@ -73,6 +82,17 @@ spec:
                 secretKeyRef:
                   name: paperless-gpt
                   key: OPENAI_API_KEY
+            # OCR only: never generate metadata on the automatic path.
+            - name: AUTO_GENERATE_TITLE
+              value: "false"
+            - name: AUTO_GENERATE_TAGS
+              value: "false"
+            - name: AUTO_GENERATE_CORRESPONDENTS
+              value: "false"
+            - name: AUTO_GENERATE_DOCUMENT_TYPE
+              value: "false"
+            - name: AUTO_GENERATE_CREATED_DATE
+              value: "false"
           resources:
             requests:
               cpu: 25m
