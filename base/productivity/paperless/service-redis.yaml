@@ -1,0 +1,22 @@
+# Paperless's Redis runs as a sidecar in the Paperless pod (localhost:6379).
+# This Service lets the paperless-rules Job and the paperless-export CronJob use
+# the same Redis: saving tags/types/workflows clears Paperless's cache, and the
+# Job failed with "Error 111 connecting to localhost:6379" without it
+# (2026-11-27). In-cluster only; the pod's Redis was already reachable by pod IP.
+apiVersion: v1
+kind: Service
+metadata:
+  name: paperless-redis
+  namespace: productivity
+  labels:
+    app.kubernetes.io/name: paperless
+    app.kubernetes.io/part-of: homelab
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: paperless
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+      protocol: TCP
