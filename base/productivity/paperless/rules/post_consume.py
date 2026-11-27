@@ -1,4 +1,4 @@
-# Finishes Flogas bill titles after import (run by post_consume.sh through
+# Finishes Flogas bill and AIB statement titles after import (run by post_consume.sh through
 # "manage.py shell", so it uses Paperless's own database access).
 #
 # - Date: Paperless dates a Flogas bill from the first date in its text, the start
@@ -9,6 +9,11 @@
 # - Title: "Flogas Gas Bill 2026-10 (7 Aug–2 Oct)", the billing period read from
 #   the bill's "Billing Period dd/mm/yyyy – dd/mm/yyyy" line. Without that line
 #   the period is left off.
+# AIB statements ("Statement of Account with Allied Irish Banks"): their
+#   "Date of Statement" box does not come through in the text, so a statement is
+#   dated by its last transaction and titled with the period from its "Balance
+#   Forward" date: "AIB Statement 2025-04 (19 Mar–28 Apr)". The 17 statements in
+#   prod (2026-11-27) chain end to end that way.
 # Anything else is left untouched. Checked against all 24 Flogas bills in prod
 # (2026-11-27): every one has the line, and the periods join up end to end.
 import datetime
@@ -44,13 +49,40 @@ def flogas_title(original_filename, content):
     return issued, title
 
 
+AIB_MARK = "statement of account with allied irish banks"
+TEXT_DATE = re.compile(r"\b(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* (\d{4})\b", re.I)
+
+
+def aib_title(content):
+    """Returns (statement_date, title) for an AIB statement, or None."""
+    text = re.sub(r"\s+", " ", content or "")
+    if AIB_MARK not in text.lower():
+        return None
+    dates = []
+    for d, m, y in TEXT_DATE.findall(text):
+        try:
+            dates.append(datetime.date(int(y), MON.index(m[:3].title()) + 1, int(d)))
+        except ValueError:
+            continue
+    if not dates:
+        return None
+    first, last = min(dates), max(dates)
+    a, b = f"{first.day} {MON[first.month - 1]}", f"{last.day} {MON[last.month - 1]}"
+    span = f"{a}–{b}" if first.year == last.year else f"{a} {first.year}–{b} {last.year}"
+    return last, f"AIB Statement {last:%Y-%m} ({span})"
+
+
 def main():
     doc = Document.objects.get(pk=int(os.environ["DOCUMENT_ID"]))
-    if not doc.correspondent or doc.correspondent.name != "Flogas":
+    name = doc.correspondent.name if doc.correspondent else ""
+    if name == "AIB":
+        found = aib_title(doc.content)
+    elif name == "Flogas":
+        found = flogas_title(doc.original_filename, doc.content)
+    else:
         return
-    found = flogas_title(doc.original_filename, doc.content)
     if not found:
-        print(f"post_consume: Flogas document {doc.pk} has an unknown file name pattern; left as is")
+        print(f"post_consume: {name} document {doc.pk} not recognised; left as is")
         return
     issued, title = found
     if (doc.created, doc.title) == (issued, title):
