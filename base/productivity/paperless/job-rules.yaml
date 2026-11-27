@@ -34,6 +34,9 @@ spec:
           env:
             - name: TZ
               value: Europe/Dublin
+            # Paperless's Redis (sidecar), via service-redis.yaml: saves clear its cache.
+            - name: PAPERLESS_REDIS
+              value: redis://paperless-redis:6379
             - name: PAPERLESS_DBHOST
               value: paperless-db
             - name: PAPERLESS_DBNAME

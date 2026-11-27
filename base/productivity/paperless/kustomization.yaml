@@ -4,6 +4,7 @@ resources:
   - deployment.yaml
   - deployment-db.yaml
   - service.yaml
+  - service-redis.yaml
   - ingress.yaml
   - pvc.yaml
   - job-rules.yaml
