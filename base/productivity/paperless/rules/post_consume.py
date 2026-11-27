@@ -1,4 +1,4 @@
-# Finishes Flogas bill, AIB and Revolut statement titles after import (run by post_consume.sh through
+# Finishes Flogas bill, AIB/Revolut statement and Revenue titles after import (run by post_consume.sh through
 # "manage.py shell", so it uses Paperless's own database access).
 #
 # - Date: Paperless dates a Flogas bill from the first date in its text, the start
@@ -18,6 +18,9 @@
 #   (account-statement_2017-05-01_2026-11-27_en-us_<id>.pdf), the currency opens
 #   the text ("EUR Statement"): "Revolut EUR Statement 2026-11 (1 May 2017–27 Nov 2026)",
 #   dated by the period's end.
+# Revenue documents: kind and tax year from the file name
+#   (Tax_Credit_Certificate_2021_<n>.pdf -> "Revenue Tax Credit Certificate 2021");
+#   the date stays the issue date Paperless read from the letter.
 # Anything else is left untouched. Checked against all 24 Flogas bills in prod
 # (2026-11-27): every one has the line, and the periods join up end to end.
 import datetime
@@ -92,9 +95,32 @@ def revolut_title(original_filename, content):
     return last, f"Revolut {cur[1] + ' ' if cur else ''}Statement {last:%Y-%m} ({span})"
 
 
+REVENUE_FILE = re.compile(r"^(.*)_((?:19|20)\d\d)_\d+(?:\.pdf)?$", re.I)
+UPPER = {"lpt", "paye", "usc", "vht", "ppsn"}
+SMALL = {"of", "and", "for", "to", "the"}
+
+
+def revenue_title(original_filename):
+    """Returns the title for a Revenue download, or None."""
+    m = REVENUE_FILE.match(original_filename or "")
+    if not m:
+        return None
+    words = [w for w in re.sub(r"_eng_.*$", "", m[1], flags=re.I).split("_") if w]
+    kind = " ".join(w.upper() if w.lower() in UPPER else w.lower() if i and w.lower() in SMALL
+                    else w[:1].upper() + w[1:].lower() for i, w in enumerate(words))
+    return f"Revenue {kind} {m[2]}"
+
+
 def main():
     doc = Document.objects.get(pk=int(os.environ["DOCUMENT_ID"]))
     name = doc.correspondent.name if doc.correspondent else ""
+    if name == "Revenue":
+        title = revenue_title(doc.original_filename)
+        if title and title != doc.title:
+            doc.title = title
+            doc.save()
+            print(f"post_consume: document {doc.pk} -> '{title}'")
+        return
     if name == "AIB":
         found = aib_title(doc.content)
     elif name == "Revolut":
