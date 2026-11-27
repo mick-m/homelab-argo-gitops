@@ -66,6 +66,16 @@ spec:
                 secretKeyRef:
                   name: paperless-secret-key
                   key: PAPERLESS_SECRET_KEY
+            # Run as the TrueNAS user mickm (UID/GID 3000), not the image's 1000.
+            # On every start the image chowns consume/ (and data, media) to its
+            # own user; consume/ is on the NAS and is also the SMB share Mick
+            # drops scans into from his Mac as mickm. As 1000 it took the folder
+            # from mickm and his Mac could no longer write to it (2026-11-27).
+            # Kept last: staging overlays patch env lists by position.
+            - name: USERMAP_UID
+              value: "3000"
+            - name: USERMAP_GID
+              value: "3000"
           resources:
             requests:
               cpu: 100m
