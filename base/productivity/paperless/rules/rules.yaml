@@ -1,0 +1,67 @@
+# Paperless rules managed in git (Mick, 2026-11-27). Applied to Paperless's
+# database by the paperless-rules Job on every Argo CD sync of productivity,
+# on staging and prod alike.
+#
+# - Things are matched BY NAME. Listed ones are created or updated to match this
+#   file; anything not listed (one-off correspondents, tags added in the UI) is
+#   left alone. So change these rules HERE, not in the UI: the next sync puts
+#   the git version back.
+# - Which document has which correspondent/type/tag is data and stays in
+#   Paperless (and in the nightly export), not here.
+#
+# matching: none | any | all | exact | regex | fuzzy | auto
+#   auto = Paperless learns from documents already filed that way.
+#   Trigger tags for other tools must be "none": an "auto" tag can be put on new
+#   documents by Paperless's classifier (how paperless-gpt kept firing).
+
+document_types:
+  - {name: Bill, matching: none}            # set by the workflows below
+  - {name: Invoice, matching: auto}
+  - {name: Quote, matching: auto}
+  - {name: Payslip, matching: regex, match: "pay ?slip"}
+  - {name: Contract, matching: auto}
+  - {name: Employment letter, matching: auto}
+  - {name: Certificate, matching: auto}
+  - {name: Reference, matching: auto}
+  - {name: Lease / Tenancy, matching: auto}
+  - {name: Report / Plans, matching: auto}
+  - {name: Correspondence, matching: auto}
+  - {name: ID document, matching: none}
+
+tags:
+  - {name: Sunnyside, matching: auto}
+  - {name: Employment, matching: auto}
+  - {name: Education, matching: auto}
+  - {name: Rental history, matching: auto}
+  - {name: Utilities, matching: none}       # set by the workflows below
+
+# Regular senders only: their matching rule. One-off correspondents stay in the UI.
+correspondents:
+  - {name: Flogas, matching: exact, match: Flogas}
+  - {name: Pure Telecom, matching: regex, match: "Pure Telecom|SIBT00007644"}
+  - {name: Workday, matching: exact, match: Workday}
+  - {name: Shields Construction, matching: exact, match: Shields Construction}
+  - {name: Paddy Power Betfair, matching: regex, match: "Paddy Power|Power Leisure Bookmakers|Betfair"}
+
+# Titles for recurring documents, set when a document is added. Paperless 3.4
+# fills titles with Jinja: placeholders need DOUBLE braces, {{ created_year }}.
+# Single braces come out literally (2026-11-27).
+# Flogas titles are finished by post_consume.py, which runs after these and adds
+# the issue date from the file name and the billing period from the bill's text.
+workflows:
+  - name: "Title: Flogas gas bill"
+    order: 10
+    when: {correspondent: Flogas, filename: "FGNG*"}
+    set: {title: "Flogas Gas Bill {{ created_year }}-{{ created_month }}", document_type: Bill, tags: [Utilities]}
+  - name: "Title: Flogas electricity bill"
+    order: 11
+    when: {correspondent: Flogas, filename: "*InvoiceElec*"}
+    set: {title: "Flogas Electricity Bill {{ created_year }}-{{ created_month }}", document_type: Bill, tags: [Utilities]}
+  - name: "Title: Pure Telecom bill"
+    order: 12
+    when: {correspondent: Pure Telecom}
+    set: {title: "Pure Telecom Bill {{ created_year }}-{{ created_month }}", document_type: Bill, tags: [Utilities]}
+  - name: "Title: payslip"
+    order: 20
+    when: {document_type: Payslip}
+    set: {title: "{{ correspondent }} Payslip {{ created_year }}-{{ created_month }}"}

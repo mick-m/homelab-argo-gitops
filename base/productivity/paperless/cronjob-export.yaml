@@ -1,0 +1,105 @@
+# Nightly Paperless export (document_exporter) to the NAS: every document plus
+# its metadata (titles, dates, correspondents, types, tags, notes, workflows,
+# users) and a manifest.json, readable without Paperless; document_importer
+# rebuilds a Paperless from it. Only changed files are rewritten.
+# Lands in documents/paperless/export, so Mick can browse it over SMB.
+# Protects against losing or damaging Paperless's database/metadata, not
+# against losing the NAS (that is the Proxmox/NAS backup item).
+# Prod only: staging deletes this CronJob (same NAS folder).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: paperless-export
+  namespace: productivity
+  labels:
+    app.kubernetes.io/name: paperless-export
+    app.kubernetes.io/part-of: homelab
+spec:
+  schedule: "45 1 * * *"
+  timeZone: Europe/Dublin
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: paperless-export
+            app.kubernetes.io/part-of: homelab
+        spec:
+          restartPolicy: Never
+          # As mickm (3000), like Paperless: the exporter takes Paperless's
+          # media.lock, and a root-owned lock file blocked every import before
+          # (2026-11-27). The export also stays editable from the Mac.
+          securityContext:
+            runAsUser: 3000
+            runAsGroup: 3000
+            fsGroup: 3000
+          initContainers:
+            # The export folder must exist and belong to 3000 before the exporter
+            # (not root) writes to it. This NFS export lets root chown.
+            - name: prepare-export-dir
+              image: busybox:1.37
+              securityContext:
+                runAsUser: 0
+                runAsGroup: 0
+              command: ["sh", "-c", "mkdir -p /nas/export && chown 3000:3000 /nas/export"]
+              resources:
+                requests: {cpu: 10m, memory: 16Mi}
+                limits: {cpu: 100m, memory: 64Mi}
+              volumeMounts:
+                - name: nas
+                  mountPath: /nas
+          containers:
+            - name: export
+              image: ghcr.io/paperless-ngx/paperless-ngx:3.4.1   # keep in step with deployment.yaml
+              workingDir: /usr/src/paperless/src
+              command: ["sh", "-c"]
+              # --delete: drop files from the export when the document was deleted.
+              args: ["mkdir -p /usr/src/paperless/data/log && python3 manage.py document_exporter /export --delete --use-folder-prefix"]
+              env:
+                - name: TZ
+                  value: Europe/Dublin
+                - name: PAPERLESS_DBHOST
+                  value: paperless-db
+                - name: PAPERLESS_DBNAME
+                  value: paperless
+                - name: PAPERLESS_DBUSER
+                  value: paperless
+                - name: PAPERLESS_DBPASS
+                  value: paperless-k3s-2026
+                - name: PAPERLESS_TIME_ZONE
+                  value: Europe/Dublin
+                - name: PAPERLESS_SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: paperless-secret-key
+                      key: PAPERLESS_SECRET_KEY
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 256Mi
+                limits:
+                  cpu: "1"
+                  memory: 1Gi
+              volumeMounts:
+                - name: media
+                  mountPath: /usr/src/paperless/media
+                - name: data
+                  mountPath: /usr/src/paperless/data
+                - name: nas
+                  mountPath: /export
+                  subPath: export
+          volumes:
+            # Same RWO volume as the Paperless pod; fine on this single-node cluster.
+            - name: media
+              persistentVolumeClaim:
+                claimName: paperless-media
+            - name: data
+              emptyDir: {}
+            - name: nas
+              nfs:
+                server: 192.168.1.202
+                path: /mnt/volume1/documents/paperless

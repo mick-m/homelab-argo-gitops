@@ -104,6 +104,18 @@ patches:
                   - name: PAPERLESS_PUBLIC_URL
                     value: https://staging-paperless.sunnyside.home
 
+  # The nightly Paperless export writes to the NAS (documents/paperless/export);
+  # only prod's archive belongs there.
+  - target:
+      kind: CronJob
+      name: paperless-export
+    patch: |
+      $patch: delete
+      apiVersion: batch/v1
+      kind: CronJob
+      metadata:
+        name: paperless-export
+
   # Staging Paperless must not import from the NAS consume folder: it shares it with
   # prod, and whichever cluster polls first imports a scan and deletes it, so some
   # of Mick's scans ended up in staging instead of his real archive (2026-11-27).

@@ -1,0 +1,70 @@
+# Applies rules/rules.yaml (types, tags, regular-sender matching, title
+# workflows) to Paperless's database after every Argo CD sync of productivity.
+# Idempotent and by name: see rules/apply_rules.py. Uses the Paperless image and
+# its database settings, without the image's init (command overrides it), so it
+# needs no API token and no media.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: paperless-rules
+  namespace: productivity
+  labels:
+    app.kubernetes.io/name: paperless-rules
+    app.kubernetes.io/part-of: homelab
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: paperless-rules
+        app.kubernetes.io/part-of: homelab
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: apply-rules
+          image: ghcr.io/paperless-ngx/paperless-ngx:3.4.1   # keep in step with deployment.yaml
+          workingDir: /usr/src/paperless/src
+          command: ["sh", "-c"]
+          # Paperless logs to $DATA_DIR/log; this pod has an empty data dir.
+          args: ["mkdir -p /usr/src/paperless/data/log && python3 manage.py shell < /usr/src/paperless/scripts/apply_rules.py"]
+          env:
+            - name: TZ
+              value: Europe/Dublin
+            - name: PAPERLESS_DBHOST
+              value: paperless-db
+            - name: PAPERLESS_DBNAME
+              value: paperless
+            - name: PAPERLESS_DBUSER
+              value: paperless
+            - name: PAPERLESS_DBPASS
+              value: paperless-k3s-2026
+            - name: PAPERLESS_TIME_ZONE
+              value: Europe/Dublin
+            - name: PAPERLESS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-secret-key
+                  key: PAPERLESS_SECRET_KEY
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: scripts
+              mountPath: /usr/src/paperless/scripts
+            - name: data
+              mountPath: /usr/src/paperless/data
+      volumes:
+        - name: scripts
+          configMap:
+            name: paperless-rules
+            defaultMode: 0755
+        - name: data
+          emptyDir: {}

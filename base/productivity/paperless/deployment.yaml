@@ -85,6 +85,10 @@ spec:
               value: "2"
             - name: PAPERLESS_TASK_WORKERS
               value: "1"
+            # Runs after each import, after the workflows: finishes Flogas bill
+            # titles and dates (rules/post_consume.py). Kept last (see above).
+            - name: PAPERLESS_POST_CONSUME_SCRIPT
+              value: /usr/src/paperless/scripts/post_consume.sh
           resources:
             requests:
               cpu: 100m
@@ -112,6 +116,8 @@ spec:
             - name: consume
               mountPath: /usr/src/paperless/consume
               subPath: consume
+            - name: scripts
+              mountPath: /usr/src/paperless/scripts
       volumes:
         - name: data
           persistentVolumeClaim:
@@ -123,3 +129,7 @@ spec:
           nfs:
             server: 192.168.1.202
             path: /mnt/volume1/documents/paperless
+        - name: scripts
+          configMap:
+            name: paperless-rules
+            defaultMode: 0755

@@ -133,6 +133,18 @@ mounts are unaffected. **Changing an app's user also needs a one-off chown of it
 image's own startup chown fails there, and Paperless's imports broke until it was done.
 Details: `docs/network.md` in the bootstrap repo, "Who owns files on the NAS".
 
+**Paperless rules live in git, not only in its UI.** Document types, tags, the
+matching rules for regular senders and the title workflows are in
+[base/productivity/paperless/rules/rules.yaml](base/productivity/paperless/rules/rules.yaml);
+the `paperless-rules` PostSync Job applies them by name after every sync (both
+clusters), so a UI edit to a managed rule is reverted on the next sync. Which
+document has which correspondent/type/tag is data and stays in Paperless.
+`post_consume.py` (same folder) finishes Flogas bill titles and dates after each
+import. Title templates are Jinja in Paperless 3.4: `{{ created_year }}`, double
+braces. The nightly `paperless-export` CronJob (prod only) writes a full export to
+`documents/paperless/export` on the NAS. The Paperless image tag appears in the
+Deployment, the Job and the CronJob; keep them in step.
+
 **Don't `kubectl apply` to the clusters to "fix" something.** Staging self-heals
 and will revert you; prod does not self-heal and will silently drift from git.
 Change the manifest.
