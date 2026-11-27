@@ -76,13 +76,22 @@ spec:
               value: "3000"
             - name: USERMAP_GID
               value: "3000"
+            # OCR threads. Paperless defaults to one per CPU it sees (8 on k3s-prod)
+            # and ran 8 page OCRs at once, past the 2Gi limit: OOMKilled four times
+            # in 18 minutes while importing, the UI down each time, and every
+            # restart retried the same files (2026-11-27). 2 matches the CPU limit.
+            # Kept last: staging overlays patch env lists by position.
+            - name: PAPERLESS_THREADS_PER_WORKER
+              value: "2"
+            - name: PAPERLESS_TASK_WORKERS
+              value: "1"
           resources:
             requests:
               cpu: 100m
               memory: 512Mi
             limits:
               cpu: "2"
-              memory: 2Gi
+              memory: 3Gi   # headroom for a large scan even at 2 OCR threads
           livenessProbe:
             tcpSocket:
               port: 8000
