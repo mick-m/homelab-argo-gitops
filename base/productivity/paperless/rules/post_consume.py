@@ -160,14 +160,18 @@ def bill_figures(name, title, content):
     t = re.sub(r"\s+", " ", content or "")
     out = {}
     if name == "Flogas":
+        # Units can be pro-rated (320.71, when a price change splits a bill) and a
+        # correction after an estimated read prints its minus sign AFTER the number
+        # ("Gas Used kWh 385- 10.3082 cent/kWh -39.69"): stored as negative kWh.
+        units = r"([\d,]+(?:\.\d+)?)(-?) "
         if title.startswith("Flogas Gas"):
-            lines = re.findall(r"Gas Used kWh ([\d,]+) ([\d.]+) [A-Z]? ?cent/kWh " + MONEY, t)
+            lines = re.findall(r"Gas Used kWh " + units + r"([\d.]+) [A-Z]? ?cent/kWh " + MONEY, t)
         else:
-            lines = re.findall(r"Units ([\d,]+) ([\d.]+) \d+% €/kWh " + MONEY, t)
-        kwh = sum(int(k.replace(",", "")) for k, _, _ in lines)
-        cost = sum(_m(c) for _, _, c in lines)
-        if kwh:
-            out["kWh"] = kwh
+            lines = re.findall(r"Units " + units + r"([\d.]+) \d+% €/kWh " + MONEY, t)
+        kwh = sum((-1 if neg else 1) * float(k.replace(",", "")) for k, neg, _, _ in lines)
+        cost = sum(_m(c) for _, _, _, c in lines)
+        if lines and round(kwh):
+            out["kWh"] = round(kwh)
             out["Unit rate (c/kWh)"] = round(cost / kwh * 100, 2)   # weighted if the rate changed
         m = re.search(r"Current Bill €?\s?" + MONEY, t)
         if m:
