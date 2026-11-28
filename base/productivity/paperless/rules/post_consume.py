@@ -1,4 +1,4 @@
-# Finishes Flogas bill, AIB/Revolut statement and Revenue titles after import (run by post_consume.sh through
+# Finishes Flogas/Oxigen bill, AIB/Revolut statement and Revenue titles after import (run by post_consume.sh through
 # "manage.py shell", so it uses Paperless's own database access).
 #
 # - Date: Paperless dates a Flogas bill from the first date in its text, the start
@@ -21,6 +21,9 @@
 # Revenue documents: kind and tax year from the file name
 #   (Tax_Credit_Certificate_2021_<n>.pdf -> "Revenue Tax Credit Certificate 2021");
 #   the date stays the issue date Paperless read from the letter.
+# Oxigen bills: Paperless dates them from the bin calendar on the page; the real
+#   date is the "Payment Request Date". Title "Oxigen Bill 2026-03", plus the
+#   "Period Of Cover" when both of its dates read cleanly (OCR often garbles the end).
 # Anything else is left untouched. Checked against all 24 Flogas bills in prod
 # (2026-11-27): every one has the line, and the periods join up end to end.
 import datetime
@@ -111,6 +114,35 @@ def revenue_title(original_filename):
     return f"Revenue {kind} {m[2]}"
 
 
+# The account number sits between the label and the date: allow anything short.
+OX_DATE = re.compile(r"Payment\s*Request\s*Date.{0,60}?\b(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]{3,9})\s+(\d{4})", re.I)
+OX_PERIOD = re.compile(r"Period\s*Of\s*Cover\s*(\d{1,2})\s+([A-Za-z]{3,9})\s+(\d{4})\s*[-–]\s*(\d{1,2})\s+([A-Za-z]{3,9})\s+(\d{4})", re.I)
+
+
+def _date(d, m, y):
+    try:
+        return datetime.date(int(y), MON.index(m[:3].title()) + 1, int(d))
+    except ValueError:
+        return None
+
+
+def oxigen_title(content):
+    """Returns (payment_request_date, title) for an Oxigen bill, or None."""
+    text = re.sub(r"\s+", " ", content or "")
+    m = OX_DATE.search(text)
+    issued = _date(*m.groups()) if m else None
+    if not issued:
+        return None
+    title = f"Oxigen Bill {issued:%Y-%m}"
+    p = OX_PERIOD.search(text)
+    if p:
+        a, b = _date(*p.groups()[:3]), _date(*p.groups()[3:])
+        if a and b and a <= b:
+            sa, sb = f"{a.day} {MON[a.month - 1]}", f"{b.day} {MON[b.month - 1]}"
+            title += f" ({sa}–{sb})" if a.year == b.year else f" ({sa} {a.year}–{sb} {b.year})"
+    return issued, title
+
+
 def main():
     doc = Document.objects.get(pk=int(os.environ["DOCUMENT_ID"]))
     name = doc.correspondent.name if doc.correspondent else ""
@@ -125,6 +157,8 @@ def main():
         found = aib_title(doc.content)
     elif name == "Revolut":
         found = revolut_title(doc.original_filename, doc.content)
+    elif name == "Oxigen":
+        found = oxigen_title(doc.content)
     elif name == "Flogas":
         found = flogas_title(doc.original_filename, doc.content)
     else:

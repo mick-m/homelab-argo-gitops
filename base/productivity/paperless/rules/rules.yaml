@@ -43,6 +43,7 @@ correspondents:
   - {name: AIB, matching: none}
   - {name: Revolut, matching: none}
   - {name: Revenue, matching: none}
+  - {name: Oxigen, matching: none}
   - {name: Flogas, matching: exact, match: Flogas}
   - {name: Pure Telecom, matching: regex, match: "Pure Telecom|SIBT00007644"}
   - {name: Workday, matching: exact, match: Workday}
@@ -82,6 +83,14 @@ workflows:
     order: 3
     when: {filename: "*_[12][0-9][0-9][0-9]_[0-9]*", content_regex: "Revenue|PAYE Services|LPT Branch|In all correspondence please quote"}
     set: {title: "Revenue document {{ created_year }}", correspondent: Revenue, document_type: Tax document}
+  # Oxigen (waste) payment requests: MICHAEL_MCCARTHY_Invoice-<n>-<k>.pdf, the
+  # invoice is an image on the page (needs PAPERLESS_OCR_MODE=redo), plus a text
+  # bin calendar. The company's legal name AND the file name: AIB statements list
+  # Oxigen direct debits.
+  - name: "Title: Oxigen bill"
+    order: 4
+    when: {filename: "*_Invoice-*", content: "Oxigen Environmental ULC"}
+    set: {title: "Oxigen Bill {{ created_year }}-{{ created_month }}", correspondent: Oxigen, document_type: Bill, tags: [Utilities]}
   - name: "Title: Flogas gas bill"
     order: 10
     when: {correspondent: Flogas, filename: "FGNG*"}
