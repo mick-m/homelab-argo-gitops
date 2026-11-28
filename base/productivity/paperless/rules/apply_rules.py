@@ -7,7 +7,7 @@
 import os
 import yaml
 from django.db import transaction
-from documents.models import (Correspondent, DocumentType, MatchingModel, Tag,
+from documents.models import (Correspondent, CustomField, DocumentType, MatchingModel, Tag,
                               Workflow, WorkflowAction, WorkflowTrigger)
 
 RULES = os.environ.get("PAPERLESS_RULES_FILE", "/usr/src/paperless/scripts/rules.yaml")
@@ -49,6 +49,18 @@ with transaction.atomic():
         ensure(Tag, spec)
     for spec in rules.get("correspondents", []):
         ensure(Correspondent, spec)
+    for spec in rules.get("custom_fields", []):
+        cf, created = CustomField.objects.get_or_create(name=spec["name"], defaults={"data_type": spec["type"]})
+        if cf.data_type != spec["type"]:
+            # Changing a field's type would orphan its stored values; refuse.
+            raise SystemExit(f"custom field {cf.name} is {cf.data_type} in Paperless, {spec['type']} in rules.yaml")
+        if spec["type"] == "monetary" and (cf.extra_data or {}).get("default_currency") != "EUR":
+            cf.extra_data = {**(cf.extra_data or {}), "default_currency": "EUR"}
+            cf.save()
+            if not created:
+                log.append(f"updated CustomField {cf.name} (currency)")
+        if created:
+            log.append(f"created CustomField {cf.name}")
 
     for wf in rules.get("workflows", []):
         when, act = wf.get("when", {}), wf.get("set", {})

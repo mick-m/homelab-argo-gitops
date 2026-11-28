@@ -37,6 +37,18 @@ tags:
   - {name: Rental history, matching: auto}
   - {name: Utilities, matching: none}       # set by the workflows below
 
+# Custom fields: figures to sort, filter and total by. post_consume.py fills them
+# for the recurring bills (Flogas, Pure Telecom, Oxigen) and Workday payslips;
+# one-off documents were filled once. Monetary values are euro.
+custom_fields:
+  - {name: Amount, type: monetary}                 # total of a bill, invoice or quote, incl VAT
+  - {name: kWh, type: integer}                     # energy used (gas or electricity)
+  - {name: Unit rate (c/kWh), type: float}         # energy only; weighted if the rate changed
+  - {name: Gross pay, type: monetary}              # payslips: this period
+  - {name: Net pay, type: monetary}
+  - {name: On-call pay, type: monetary}            # Workday payslips; 0 when there is no line
+  - {name: Tax balance, type: monetary}            # Statement of Liability: + refund, - owed
+
 # Regular senders only: their matching rule. One-off correspondents stay in the UI.
 correspondents:
   # Set by the statement workflows, not by matching: other documents mention them.

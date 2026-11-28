@@ -24,6 +24,7 @@
 # Oxigen bills: Paperless dates them from the bin calendar on the page; the real
 #   date is the "Payment Request Date". Title "Oxigen Bill 2026-03", plus the
 #   "Period Of Cover" when both of its dates read cleanly (OCR often garbles the end).
+# Figures (custom fields): see bill_figures() below.
 # Anything else is left untouched. Checked against all 24 Flogas bills in prod
 # (2026-11-27): every one has the line, and the periods join up end to end.
 import datetime
@@ -143,17 +144,77 @@ def oxigen_title(content):
     return issued, title
 
 
+# ---- Figures, saved as custom fields (rules.yaml: custom_fields) ------------
+# Only for documents that keep arriving in the same layout; one-off documents
+# (invoices, quotes, old payslips, Statements of Liability) were filled in once.
+# Unit rates are stored in cent/kWh: gas bills print cent, electricity bills €.
+MONEY = r"(-?[\d,]+\.\d{2})"
+
+
+def _m(x):
+    return float(x.replace(",", ""))
+
+
+def bill_figures(name, title, content):
+    """Returns {custom field name: value} for a recurring bill or payslip."""
+    t = re.sub(r"\s+", " ", content or "")
+    out = {}
+    if name == "Flogas":
+        # Units can be pro-rated (320.71, when a price change splits a bill) and a
+        # correction after an estimated read prints its minus sign AFTER the number
+        # ("Gas Used kWh 385- 10.3082 cent/kWh -39.69"): stored as negative kWh.
+        units = r"([\d,]+(?:\.\d+)?)(-?) "
+        if title.startswith("Flogas Gas"):
+            lines = re.findall(r"Gas Used kWh " + units + r"([\d.]+) [A-Z]? ?cent/kWh " + MONEY, t)
+        else:
+            lines = re.findall(r"Units " + units + r"([\d.]+) \d+% €/kWh " + MONEY, t)
+        kwh = sum((-1 if neg else 1) * float(k.replace(",", "")) for k, neg, _, _ in lines)
+        cost = sum(_m(c) for _, _, _, c in lines)
+        if lines and round(kwh):
+            out["kWh"] = round(kwh)
+            out["Unit rate (c/kWh)"] = round(cost / kwh * 100, 2)   # weighted if the rate changed
+        m = re.search(r"Current Bill €?\s?" + MONEY, t)
+        if m:
+            out["Amount"] = _m(m[1])
+    elif name == "Pure Telecom":
+        m = re.search(r"Bill Amount €\s?" + MONEY, t)
+        if m:
+            out["Amount"] = _m(m[1])
+    elif name == "Oxigen":
+        m = re.search(r"Balance on account €\s?" + MONEY, t)
+        if m:
+            out["Amount"] = _m(m[1])
+    elif name == "Workday" and "Payslip" in title:
+        g, n = re.search(r"\+ Gross Pay " + MONEY, t), re.search(r"NETT PAY " + MONEY, t)
+        if g and n:
+            oc = re.search(r"ON CALL " + MONEY, t)
+            out = {"Gross pay": _m(g[1]), "Net pay": _m(n[1]), "On-call pay": _m(oc[1]) if oc else 0.0}
+    return out
+
+
+def set_fields(doc, values):
+    from documents.models import CustomField, CustomFieldInstance
+    for fname, value in values.items():
+        field = CustomField.objects.filter(name=fname).first()
+        if not field:
+            print(f"post_consume: custom field '{fname}' missing; skipped")
+            continue
+        store = {"monetary": "value_monetary", "integer": "value_int", "float": "value_float"}[field.data_type]
+        if field.data_type == "monetary":
+            value = f"EUR{value:.2f}"
+        CustomFieldInstance.objects.update_or_create(document=doc, field=field, defaults={store: value})
+    if values:
+        print(f"post_consume: document {doc.pk} fields {values}")
+
+
 def main():
     doc = Document.objects.get(pk=int(os.environ["DOCUMENT_ID"]))
     name = doc.correspondent.name if doc.correspondent else ""
+    found = None
     if name == "Revenue":
         title = revenue_title(doc.original_filename)
-        if title and title != doc.title:
-            doc.title = title
-            doc.save()
-            print(f"post_consume: document {doc.pk} -> '{title}'")
-        return
-    if name == "AIB":
+        found = (doc.created, title) if title else None
+    elif name == "AIB":
         found = aib_title(doc.content)
     elif name == "Revolut":
         found = revolut_title(doc.original_filename, doc.content)
@@ -161,22 +222,23 @@ def main():
         found = oxigen_title(doc.content)
     elif name == "Flogas":
         found = flogas_title(doc.original_filename, doc.content)
-    else:
+    elif name not in ("Pure Telecom", "Workday"):
         return
-    if not found:
-        print(f"post_consume: {name} document {doc.pk} not recognised; left as is")
-        return
-    issued, title = found
-    if (doc.created, doc.title) == (issued, title):
-        return
-    doc.created, doc.title = issued, title
-    doc.save()
-    try:  # keep search results in step with the new title (as Paperless's add_to_index)
-        from documents.search import get_backend
-        get_backend().add_or_update(doc.root_document if doc.root_document_id else doc)
+    if found and (doc.created, doc.title) != found:
+        doc.created, doc.title = found
+        doc.save()
+        try:  # keep search results in step with the new title (as Paperless's add_to_index)
+            from documents.search import get_backend
+            get_backend().add_or_update(doc.root_document if doc.root_document_id else doc)
+        except Exception as e:  # noqa: BLE001
+            print(f"post_consume: search index not updated for {doc.pk}: {e}")
+        print(f"post_consume: document {doc.pk} -> {found[0]} '{found[1]}'")
+    elif found is None and name in ("AIB", "Revolut", "Oxigen", "Flogas"):
+        print(f"post_consume: {name} document {doc.pk} not recognised; title left as is")
+    try:
+        set_fields(doc, bill_figures(name, doc.title, doc.content))
     except Exception as e:  # noqa: BLE001
-        print(f"post_consume: search index not updated for {doc.pk}: {e}")
-    print(f"post_consume: document {doc.pk} -> {issued} '{title}'")
+        print(f"post_consume: fields not set for {doc.pk}: {e}")
 
 
 if os.environ.get("DOCUMENT_ID"):
