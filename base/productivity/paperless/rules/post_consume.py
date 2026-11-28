@@ -202,7 +202,8 @@ def bill_figures(name, title, content):
 # 123.45", "Employee Pension 123.45", "Avc 1,234.56", "Employer Pension 123.45".
 # Items missing from a payslip are left unset, except On-call pay (0).
 # Pension total = employee + employer + AVC. Bonus: "Workday Bonus Plan <amount>
-# <ytd>", paid in April and October; other months print 0.00, so set only when paid.
+# <ytd>" (newer), "Bonus <amount>" (2020); paid twice a year, other months print
+# 0.00 or nothing, so set only when paid.
 def workday_figures(t):
     def one(pattern, flags=0):
         m = re.search(pattern + " " + MONEY, t, flags)
@@ -210,9 +211,11 @@ def workday_figures(t):
     cur = re.search(r"\bCurrent " + " ".join([MONEY] * 5), t)
     if cur:
         out = {"Gross pay": _m(cur[1]), "Net pay": _m(cur[5])}
-        items = {"Health": one(r"BIK Health"), "Dental": one(r"BIK Health - Dental"),
-                 "Travel": one(r"Travel Ticket"), "EE": one(r"Employee Pension"),
-                 "ER": one(r"Employer Pension"), "AVC": one(r"\bAvc", re.I)}
+        # Labels are Title Case from 2024, CAPITALS on some 2023 payslips.
+        items = {"Health": one(r"BIK Health", re.I), "Dental": one(r"BIK Health - Dental", re.I),
+                 "Travel": one(r"Travel Ticket", re.I), "EE": one(r"Employee Pension", re.I),
+                 "ER": one(r"Employer Pension", re.I), "AVC": one(r"\bAvc", re.I),
+                 "Bonus": one(r"Workday Bonus Plan", re.I)}
     else:
         g, n = re.search(r"\+ Gross Pay " + MONEY, t), re.search(r"NETT PAY " + MONEY, t)
         if not (g and n):
@@ -220,10 +223,11 @@ def workday_figures(t):
         out = {"Gross pay": _m(g[1]), "Net pay": _m(n[1])}
         er = re.search(r"Pension ER contributio\w* " + MONEY + " " + MONEY + " " + MONEY, t)
         items = {"Health": one(r"BIK - VHI"), "Dental": None, "Travel": None,
-                 "EE": one(r"\bPENSION"), "ER": _m(er[3]) if er else None, "AVC": one(r"\bAVC")}
+                 "EE": one(r"\bPENSION"), "ER": _m(er[3]) if er else None, "AVC": one(r"\bAVC"),
+                 "Bonus": one(r"\bBonus")}
     out["On-call pay"] = one(r"\bON CALL", re.I) or 0.0
-    bonus = one(r"Workday Bonus Plan")
-    if bonus:
+    bonus = items.pop("Bonus")
+    if bonus:  # newer layout prints 0.00 in months without one: set only when paid
         out["Bonus"] = bonus
     names = {"Health": "BIK health", "Dental": "BIK dental", "Travel": "Travel ticket",
              "EE": "Employee pension", "ER": "Employer pension", "AVC": "AVC"}
@@ -241,10 +245,23 @@ WD_DATES = re.compile(r"Pay Period Begin Pay Period End Payment Date .*? (\d{1,2
                       r"\d{1,2} [A-Z][a-z]{2} \d{4} (\d{1,2}) ([A-Z][a-z]{2}) (\d{4})")
 
 
+# 2019-2020 Workday payslips (Emp<id>Payslip...pdf): "Company Workday Limited Monthly",
+# "Date dd/mm/yyyy" (the payment date), "NETT PAY". Titled by that date's month.
+WD_OLD_DATE = re.compile(r"\bDate (\d{1,2})/(\d{1,2})/(\d{4})\b")
+
+
 def workday_payslip(content):
-    """Returns (payment_date, title) for a 2024-on Workday payslip, or None."""
-    m = WD_DATES.search(re.sub(r"\s+", " ", content or ""))
-    if not m or "Gross Pay Pre Tax Deductions" not in re.sub(r"\s+", " ", content):
+    """Returns (payment_date, title) for a Workday payslip, or None."""
+    t = re.sub(r"\s+", " ", content or "")
+    if "Company Workday Limited" in t and "NETT PAY" in t:
+        d = WD_OLD_DATE.search(t)
+        try:
+            paid = datetime.date(int(d[3]), int(d[2]), int(d[1])) if d else None
+        except ValueError:
+            paid = None
+        return (paid, f"Workday Payslip {paid:%Y-%m}") if paid else None
+    m = WD_DATES.search(t)
+    if not m or "Gross Pay Pre Tax Deductions" not in t:
         return None
     begin, paid = _date(*m.groups()[:3]), _date(*m.groups()[3:])
     if not (begin and paid):
