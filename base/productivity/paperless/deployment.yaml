@@ -89,6 +89,14 @@ spec:
             # titles and dates (rules/post_consume.py). Kept last (see above).
             - name: PAPERLESS_POST_CONSUME_SCRIPT
               value: /usr/src/paperless/scripts/post_consume.sh
+            # OCR every page, keeping text a PDF already has (ocrmypdf --redo-ocr).
+            # The 3.4.1 default, "auto", skips OCR for a whole PDF as soon as it has
+            # any real text, so text that is only an image on such a page is never
+            # read: Oxigen's bills have a text calendar and the invoice itself as an
+            # image, so Paperless never saw "Oxigen" (2026-11-28). Costs import time
+            # (every PDF is OCR'd; 2 threads, see above). Kept last.
+            - name: PAPERLESS_OCR_MODE
+              value: redo
           resources:
             requests:
               cpu: 100m
