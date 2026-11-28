@@ -201,7 +201,8 @@ def bill_figures(name, title, content):
 # 1,234.56", "BIK Health 123.45", "BIK Health - Dental 12.34", "Travel Ticket
 # 123.45", "Employee Pension 123.45", "Avc 1,234.56", "Employer Pension 123.45".
 # Items missing from a payslip are left unset, except On-call pay (0).
-# Pension total = employee + employer + AVC.
+# Pension total = employee + employer + AVC. Bonus: "Workday Bonus Plan <amount>
+# <ytd>", paid in April and October; other months print 0.00, so set only when paid.
 def workday_figures(t):
     def one(pattern, flags=0):
         m = re.search(pattern + " " + MONEY, t, flags)
@@ -221,6 +222,9 @@ def workday_figures(t):
         items = {"Health": one(r"BIK - VHI"), "Dental": None, "Travel": None,
                  "EE": one(r"\bPENSION"), "ER": _m(er[3]) if er else None, "AVC": one(r"\bAVC")}
     out["On-call pay"] = one(r"\bON CALL", re.I) or 0.0
+    bonus = one(r"Workday Bonus Plan")
+    if bonus:
+        out["Bonus"] = bonus
     names = {"Health": "BIK health", "Dental": "BIK dental", "Travel": "Travel ticket",
              "EE": "Employee pension", "ER": "Employer pension", "AVC": "AVC"}
     out.update({names[k]: v for k, v in items.items() if v is not None})
