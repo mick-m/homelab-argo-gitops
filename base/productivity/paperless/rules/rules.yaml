@@ -58,6 +58,7 @@ custom_fields:
   - {name: Employer pension, type: monetary}
   - {name: AVC, type: monetary}
   - {name: Pension total, type: monetary}          # employee + employer + AVC
+  - {name: Bonus, type: monetary}                  # Workday Bonus Plan; only on payslips where it was paid
   - {name: Tax balance, type: monetary}            # Statement of Liability: + refund, - owed
 
 # Regular senders only: their matching rule. One-off correspondents stay in the UI.
