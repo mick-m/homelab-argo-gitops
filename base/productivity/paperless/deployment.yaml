@@ -55,7 +55,12 @@ spec:
               value: https://paperless.sunnyside.home
             - name: PAPERLESS_TIME_ZONE
               value: Europe/Dublin
-            - name: PAPERLESS_CONSUMER_POLLING
+            # Poll consume/ (an NFS mount Mick writes to over SMB: file events from
+            # another machine never arrive). 3.x renamed this from
+            # PAPERLESS_CONSUMER_POLLING, which it ignores silently: it fell back to
+            # native events plus a full rescan every 300s, so drops took ~5 min
+            # (2026-11-28). The log line "Watching ... using polling" confirms it.
+            - name: PAPERLESS_CONSUMER_POLLING_INTERVAL
               value: "30"
             # Required by recent Paperless releases (refuses to start without it).
             # The Secret is created per cluster, out of band (not in git yet):
