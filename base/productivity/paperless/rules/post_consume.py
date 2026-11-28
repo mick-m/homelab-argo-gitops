@@ -24,7 +24,8 @@
 # Oxigen bills: Paperless dates them from the bin calendar on the page; the real
 #   date is the "Payment Request Date". Title "Oxigen Bill 2026-03", plus the
 #   "Period Of Cover" when both of its dates read cleanly (OCR often garbles the end).
-# Figures (custom fields): see bill_figures() below.
+# Figures (custom fields): see bill_figures() below. Flogas bills read from an
+#   estimated meter reading get the "Estimated read" tag (estimated_read()).
 # Anything else is left untouched. Checked against all 24 Flogas bills in prod
 # (2026-11-27): every one has the line, and the periods join up end to end.
 import datetime
@@ -192,6 +193,20 @@ def bill_figures(name, title, content):
     return out
 
 
+# Meter readings: <previous> <A|C|E|F> <present> <A|C|E|F>. Gas prints
+# "<meter> 7391 A 7395 E 4 M 11.6028 46 kWh"; electricity
+# "24hr <meter> 28/08/2026 27/10/2026 11750 A 12729 A".
+GAS_READ = re.compile(r"\b\d{3,6} ([ACEF]) \d{3,6} ([ACEF]) -?\d+-? M [\d.]+ -?\d+-? kWh")
+ELEC_READ = re.compile(r"24hr \S+ \d{2}/\d{2}/\d{4}(?: \d{2}/\d{2}/\d{4})? \d+ ([ACEF]) \d+ ([ACEF])")
+
+
+def estimated_read(title, content):
+    """True if any present reading on a Flogas bill is an estimate (E)."""
+    t = re.sub(r"\s+", " ", content or "")
+    reads = (GAS_READ if title.startswith("Flogas Gas") else ELEC_READ).findall(t)
+    return any(present == "E" for _, present in reads)
+
+
 def set_fields(doc, values):
     from documents.models import CustomField, CustomFieldInstance
     for fname, value in values.items():
@@ -235,6 +250,15 @@ def main():
         print(f"post_consume: document {doc.pk} -> {found[0]} '{found[1]}'")
     elif found is None and name in ("AIB", "Revolut", "Oxigen", "Flogas"):
         print(f"post_consume: {name} document {doc.pk} not recognised; title left as is")
+    try:
+        if name == "Flogas" and estimated_read(doc.title, doc.content):
+            from documents.models import Tag
+            tag = Tag.objects.filter(name="Estimated read").first()
+            if tag:
+                doc.tags.add(tag)
+                print(f"post_consume: document {doc.pk} tagged Estimated read")
+    except Exception as e:  # noqa: BLE001
+        print(f"post_consume: estimated-read tag not set for {doc.pk}: {e}")
     try:
         set_fields(doc, bill_figures(name, doc.title, doc.content))
     except Exception as e:  # noqa: BLE001

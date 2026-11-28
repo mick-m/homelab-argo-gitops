@@ -36,6 +36,10 @@ tags:
   - {name: Education, matching: auto}
   - {name: Rental history, matching: auto}
   - {name: Utilities, matching: none}       # set by the workflows below
+  # Flogas bills whose PRESENT meter reading is E (estimate), set by post_consume.py.
+  # Their kWh and cost are a guess; the next actual read corrects them (the negative
+  # kWh bills). Electricity (smart meter) has always been actual; gas alternates.
+  - {name: Estimated read, matching: none}
 
 # Custom fields: figures to sort, filter and total by. post_consume.py fills them
 # for the recurring bills (Flogas, Pure Telecom, Oxigen) and Workday payslips;
