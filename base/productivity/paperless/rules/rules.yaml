@@ -63,7 +63,11 @@ correspondents:
   - {name: Flogas, matching: exact, match: Flogas}
   - {name: Pure Telecom, matching: regex, match: "Pure Telecom|SIBT00007644"}
   - {name: Workday, matching: exact, match: Workday}
-  - {name: Shields Construction, matching: exact, match: Shields Construction}
+  # Shields quotes carry the name only in the logo: OCR garbles it
+  # ("iSHIELDS| CON STRUM", "[SHIELDS | Quotation CONSTRUCTION") or misses it,
+  # so also match their QS. Checked against all 177 documents (2026-11-28):
+  # hits only Shields documents, plus McGuinness quote 26, as the exact rule already did.
+  - {name: Shields Construction, matching: regex, match: "Shields Construction|SHIELDS\\W{0,3}(CON\\W*STRU|Quotation\\W+CONSTRUCTION)|Darren McKenna QS"}
   - {name: Paddy Power Betfair, matching: regex, match: "Paddy Power|Power Leisure Bookmakers|Betfair"}
 
 # Titles for recurring documents, set when a document is added. Paperless 3.4
