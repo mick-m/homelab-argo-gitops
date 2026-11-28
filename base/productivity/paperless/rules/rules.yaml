@@ -51,6 +51,13 @@ custom_fields:
   - {name: Gross pay, type: monetary}              # payslips: this period
   - {name: Net pay, type: monetary}
   - {name: On-call pay, type: monetary}            # Workday payslips; 0 when there is no line
+  - {name: Travel ticket, type: monetary}          # Workday payslips from here on: set only when the line exists
+  - {name: BIK health, type: monetary}
+  - {name: BIK dental, type: monetary}
+  - {name: Employee pension, type: monetary}
+  - {name: Employer pension, type: monetary}
+  - {name: AVC, type: monetary}
+  - {name: Pension total, type: monetary}          # employee + employer + AVC
   - {name: Tax balance, type: monetary}            # Statement of Liability: + refund, - owed
 
 # Regular senders only: their matching rule. One-off correspondents stay in the UI.

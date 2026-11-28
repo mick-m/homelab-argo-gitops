@@ -24,6 +24,9 @@
 # Oxigen bills: Paperless dates them from the bin calendar on the page; the real
 #   date is the "Payment Request Date". Title "Oxigen Bill 2026-03", plus the
 #   "Period Of Cover" when both of its dates read cleanly (OCR often garbles the end).
+# Workday payslips from 2024 (<employee id>.IRL.MM.YYYY_<n>.pdf) say "payslip" nowhere, so
+#   they are typed Payslip here, dated by the Payment Date and titled by the pay
+#   period's month: "Workday Payslip 2026-06" (workday_payslip()).
 # Figures (custom fields): see bill_figures() below. Flogas bills read from an
 #   estimated meter reading get the "Estimated read" tag (estimated_read()).
 # Anything else is left untouched. Checked against all 24 Flogas bills in prod
@@ -186,11 +189,63 @@ def bill_figures(name, title, content):
         if m:
             out["Amount"] = _m(m[1])
     elif name == "Workday" and "Payslip" in title:
-        g, n = re.search(r"\+ Gross Pay " + MONEY, t), re.search(r"NETT PAY " + MONEY, t)
-        if g and n:
-            oc = re.search(r"ON CALL " + MONEY, t)
-            out = {"Gross pay": _m(g[1]), "Net pay": _m(n[1]), "On-call pay": _m(oc[1]) if oc else 0.0}
+        out = workday_figures(t)
     return out
+
+
+# Workday payslips come in two layouts (figures below are placeholders). 2020:
+# "+ Gross Pay 1234.56 ... NETT PAY 1234.56", "BIK - VHI 12.34", "PENSION 123.45
+# <ytd> 0.00 0.00", "Pension ER contributio 0.00 0.00 123.45 <ytd>", "AVC 123.45".
+# 2024 on (<employee id>.IRL.MM.YYYY_n.pdf): "Current <gross> <pre-tax ded.> <taxes>
+# <post-tax ded.> <net>", then one line per item, amount before YTD: "On Call
+# 1,234.56", "BIK Health 123.45", "BIK Health - Dental 12.34", "Travel Ticket
+# 123.45", "Employee Pension 123.45", "Avc 1,234.56", "Employer Pension 123.45".
+# Items missing from a payslip are left unset, except On-call pay (0).
+# Pension total = employee + employer + AVC.
+def workday_figures(t):
+    def one(pattern, flags=0):
+        m = re.search(pattern + " " + MONEY, t, flags)
+        return _m(m[1]) if m else None
+    cur = re.search(r"\bCurrent " + " ".join([MONEY] * 5), t)
+    if cur:
+        out = {"Gross pay": _m(cur[1]), "Net pay": _m(cur[5])}
+        items = {"Health": one(r"BIK Health"), "Dental": one(r"BIK Health - Dental"),
+                 "Travel": one(r"Travel Ticket"), "EE": one(r"Employee Pension"),
+                 "ER": one(r"Employer Pension"), "AVC": one(r"\bAvc", re.I)}
+    else:
+        g, n = re.search(r"\+ Gross Pay " + MONEY, t), re.search(r"NETT PAY " + MONEY, t)
+        if not (g and n):
+            return {}
+        out = {"Gross pay": _m(g[1]), "Net pay": _m(n[1])}
+        er = re.search(r"Pension ER contributio\w* " + MONEY + " " + MONEY + " " + MONEY, t)
+        items = {"Health": one(r"BIK - VHI"), "Dental": None, "Travel": None,
+                 "EE": one(r"\bPENSION"), "ER": _m(er[3]) if er else None, "AVC": one(r"\bAVC")}
+    out["On-call pay"] = one(r"\bON CALL", re.I) or 0.0
+    names = {"Health": "BIK health", "Dental": "BIK dental", "Travel": "Travel ticket",
+             "EE": "Employee pension", "ER": "Employer pension", "AVC": "AVC"}
+    out.update({names[k]: v for k, v in items.items() if v is not None})
+    parts = [items[k] for k in ("EE", "ER", "AVC") if items[k] is not None]
+    if parts:
+        out["Pension total"] = round(sum(parts), 2)
+    return out
+
+
+# 2024-on Workday payslips have no "payslip" in their text, so the Payslip type
+# and title come from here: "... Pay Period Begin Pay Period End Payment Date" then
+# "<name> ... <begin dd Mon yyyy> <end> <payment date>". Titled by the period's month.
+WD_DATES = re.compile(r"Pay Period Begin Pay Period End Payment Date .*? (\d{1,2}) ([A-Z][a-z]{2}) (\d{4}) "
+                      r"\d{1,2} [A-Z][a-z]{2} \d{4} (\d{1,2}) ([A-Z][a-z]{2}) (\d{4})")
+
+
+def workday_payslip(content):
+    """Returns (payment_date, title) for a 2024-on Workday payslip, or None."""
+    m = WD_DATES.search(re.sub(r"\s+", " ", content or ""))
+    if not m or "Gross Pay Pre Tax Deductions" not in re.sub(r"\s+", " ", content):
+        return None
+    begin, paid = _date(*m.groups()[:3]), _date(*m.groups()[3:])
+    if not (begin and paid):
+        return None
+    return paid, f"Workday Payslip {begin:%Y-%m}"
 
 
 # Meter readings: <previous> <A|C|E|F> <present> <A|C|E|F>. Gas prints
@@ -237,7 +292,15 @@ def main():
         found = oxigen_title(doc.content)
     elif name == "Flogas":
         found = flogas_title(doc.original_filename, doc.content)
-    elif name not in ("Pure Telecom", "Workday"):
+    elif name == "Workday":
+        found = workday_payslip(doc.content)
+        if found:
+            from documents.models import DocumentType
+            payslip = DocumentType.objects.filter(name="Payslip").first()
+            if payslip and doc.document_type_id != payslip.pk:
+                doc.document_type = payslip
+                doc.save()
+    elif name != "Pure Telecom":
         return
     if found and (doc.created, doc.title) != found:
         doc.created, doc.title = found
